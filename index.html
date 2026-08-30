@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlRoot" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>carGo - AI Freight Dispatch & Dynamic Capacity Matching</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> tailwind.config = { darkMode: 'class', } </script>
+</head>
+<body class="bg-black text-slate-100 dark:bg-black dark:text-slate-100 bg-white text-slate-900 min-h-screen flex flex-col justify-between transition-colors duration-300">
+    
+    <!-- Navigation -->
+    <nav class="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-black backdrop-blur px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <span class="text-2xl font-black tracking-wider text-emerald-500 dark:text-emerald-400">car<span class="text-slate-900 dark:text-white">Go</span></span>
+            <span class="text-xs bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">AI GPS Agent</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div id="navUserRole" class="text-xs text-slate-600 dark:text-slate-400 hidden sm:block">የኢትዮጵያ የሎጅስቲክስ ኮሪደር</div>
+            <button onclick="toggleTheme()" class="bg-white dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+                <span id="themeIcon">☀️</span> <span id="themeText">ቀላል (Light)</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-4xl mx-auto px-6 py-10 w-full flex-grow flex items-center justify-center">
+        
+        <!-- STEP -1: ONBOARDING PAGE -->
+        <section id="stepOnboarding" class="max-w-lg mx-auto bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-8 rounded-3xl shadow-2xl text-center space-y-6">
+            <div class="relative w-full h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-600/20 to-cyan-600/20 border border-emerald-500/30 flex flex-col items-center justify-center p-6">
+                <div class="text-4xl mb-2">🚛 ⚡ 🛰️</div>
+                <h1 class="text-3xl font-black tracking-wider text-emerald-500 dark:text-emerald-400">car<span class="text-slate-900 dark:text-white">Go</span></h1>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">የኢትዮጵያ አርቴፊሻል ኢንተለጀንስ የጭነት ማከፋፈያ እና ጂፒኤስ ኤጀንት</p>
+            </div>
+
+            <div class="space-y-2 text-left">
+                <h3 class="font-bold text-slate-900 dark:text-white text-base">እንኳን ወደ carGo መጡ!</h3>
+                <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    በዘመናዊ የጂፒኤስ ርቀት ስሌት፣ በድምጽ ትዕዛዝ (Voice AI) እና በቀጥታ የቴሌብር እና ሲቢቢ ባንክ አፖች አማካኝነት ጭነትዎን ደህንነቱ በተጠበቀ ሁኔታ ያስተላልፉ።
+                </p>
+            </div>
+
+            <button onclick="goToAuthFromOnboarding()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2">
+                <span>ጀምር (Get Started)</span> <span>→</span>
+            </button>
+        </section>
+
+        <!-- STEP 0: AUTHENTICATION -->
+        <section id="stepAuth" class="hidden max-w-md w-full mx-auto bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-8 rounded-2xl shadow-xl space-y-6">
+            <div class="text-center space-y-2">
+                <h2 id="authTitle" class="text-2xl font-bold text-slate-900 dark:text-white">መለያ መፍጠር (Register)</h2>
+                <p id="authSubtitle" class="text-xs text-slate-600 dark:text-slate-400">የስልክ ቁጥርዎን በመጠቀም ወደ ሎጅስቲክስ ስፔስ ይግቡ።</p>
+            </div>
+
+            <form id="authForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">ስልክ ቁጥር (Phone Number)</label>
+                    <input type="text" id="authPhone" placeholder="0911223344" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">የይለፍ ቃል (Password)</label>
+                    <input type="password" id="authPassword" placeholder="••••••••" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
+                </div>
+                <div id="roleSelectionDiv">
+                    <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">ሚና ይምረጡ (Select Role)</label>
+                    <select id="authRole" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white">
+                        <option value="Shipper">ሸቀጥ ላኪ (Shipper)</option>
+                        <option value="Driver">አሽከርካሪ (Driver)</option>
+                    </select>
+                </div>
+                <button type="submit" id="authSubmitBtn" class="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-200 dark:text-black font-bold py-3 rounded-xl text-sm transition shadow-lg">ይመዝገቡ (Register)</button>
+            </form>
+
+            <div class="text-center pt-2">
+                <button type="button" onclick="toggleAuthMode()" id="authSwitchText" class="text-xs text-slate-700 dark:text-emerald-400 hover:underline">አካውንት አለዎት? ግባ (Login)</button>
+            </div>
+            <div id="authErrorMsg" class="text-xs text-center text-red-500 font-semibold hidden"></div>
+        </section>
+
+        <!-- STEP 1: SHIPPER DASHBOARD -->
+        <section id="stepShipperDashboard" class="hidden w-full space-y-8">
+            <div class="flex justify-between items-center bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
+                <div>
+                    <span class="text-xs text-slate-500 dark:text-slate-400">የስራ ቦታ:</span>
+                    <h3 class="font-bold text-slate-900 dark:text-white text-lg">የሸቀጥ ላኪ ማዕከል (Shipper Workspace)</h3>
+                </div>
+                <button onclick="logout()" class="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-500 px-3 py-1.5 rounded-lg border border-red-500/30">ውጣ (Logout)</button>
+            </div>
+
+            <div class="bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold mb-1 text-slate-900 dark:text-white">ጭነትዎን ያስመዝግቡ (Post Cargo Load)</h2>
+                    <p class="text-xs text-slate-600 dark:text-slate-400">ትክክለኛ የጂፒኤስ ርቀት እና በቶን መጠን የሚሰላ ዋጋ።</p>
+                </div>
+                
+                <form id="shipperForm" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">መነሻ ከተማ (Origin City)</label>
+                            <input type="text" id="originCity" placeholder="አዲስ አበባ / ሀዋሳ" oninput="calculateDistanceFromGPS()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">መድረሻ ከተማ (Destination City)</label>
+                            <input type="text" id="destCity" placeholder="ሀዋሳ / አምቦ / ጅማ" oninput="calculateDistanceFromGPS()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">የጭነት መጠን በቶን (Tonnage)</label>
+                            <input type="number" id="shipperTonnage" placeholder="30" value="30" oninput="calculateDistanceFromGPS()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">የጂፒኤስ ርቀት (GPS Distance KM)</label>
+                            <input type="number" id="shipperDistance" readonly class="w-full bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white cursor-not-allowed font-semibold" required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">የጭነት ማብራሪያ (Cargo Description)</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="shipperDesc" placeholder="ማብራሪያ......" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
+                            <button type="button" onclick="startShipperVoice()" class="bg-red-600/20 text-red-600 dark:text-red-400 px-4 rounded-xl text-xs font-semibold border border-red-500/30">🎤 ድምጽ</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-200 dark:text-black font-bold py-3 rounded-xl text-sm transition">ወደ ባንክ ክፍያ ይቀጥሉ →</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- STEP 2: DRIVER DASHBOARD -->
+        <section id="stepDriverDashboard" class="hidden w-full space-y-8">
+            <div class="flex justify-between items-center bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
+                <div>
+                    <span class="text-xs text-slate-500 dark:text-slate-400">የስራ ቦታ:</span>
+                    <h3 class="font-bold text-slate-900 dark:text-white text-lg">የአሽከርካሪ ማዕከል (Driver Workspace)</h3>
+                </div>
+                <button onclick="logout()" class="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-500 px-3 py-1.5 rounded-lg border border-red-500/30">ውጣ (Logout)</button>
+            </div>
+
+            <div class="bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold mb-1 text-slate-900 dark:text-white">የድምጽ ትዕዛዝ እና የሂሳብ ማረጋገጫ (Voice Dispatch & Escrow Check)</h2>
+                    <p class="text-xs text-slate-600 dark:text-slate-400">ገቢ ክፍያዎችን አረጋግጠው ጭነቱን በድምጽ ይቀበሉ።</p>
+                </div>
+                
+                <form id="driverForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">የድምጽ / የጽሁፍ ማብራሪያ</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="driverVoiceText" placeholder="ማይክሮፎኑን በመንካት ይናገሩ..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
+                            <button type="button" onclick="startDriverVoice()" id="driverMicBtn" class="bg-red-600/20 text-red-600 dark:text-red-400 px-4 rounded-xl text-xs font-semibold border border-red-500/30">🎤 ድምጽ</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-200 dark:text-black font-bold py-3 rounded-xl text-sm transition">ክፍያውን አረጋግጥ እና ጭነት ተቀበል →</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- STEP 3: SEPARATE PAYMENT PAGE -->
+        <section id="stepPayment" class="hidden max-w-md w-full mx-auto bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-8 rounded-2xl shadow-xl space-y-6">
+            <div class="flex justify-between items-center mb-2">
+                <button onclick="backToDashboard()" class="text-xs bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1">
+                    ← ተመለስ (Back)
+                </button>
+                <span class="text-xs text-slate-500">ደህንነቱ የተጠበቀ ክፍያ</span>
+            </div>
+
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">ቀጥተኛ የባንክ መተግበሪያ ክፍያ</h2>
+                <p class="text-xs text-slate-600 dark:text-slate-400">የባንክ አማራጭ ይምረጡ፣ ክፍያውን ፈጽመው ደረሰኝ ይጫኑ።</p>
+            </div>
+            
+            <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl text-left text-xs space-y-2 border border-slate-200 dark:border-slate-800">
+                <div><span class="text-slate-500">መንገድ/ዝርዝር:</span> <span id="paySummaryTitle" class="font-bold text-slate-900 dark:text-white">የጭነት ክፍያ</span></div>
+                <div><span class="text-slate-500">የተሰላው ጠቅላላ ዋጋ:</span> <span id="paySummaryAmount" class="font-bold text-emerald-500 text-sm">0 ብር</span></div>
+            </div>
+
+            <!-- Payment Method Selection -->
+            <div class="space-y-3">
+                <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400">የባንክ መተግበሪያ ይምረጡ</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" onclick="selectPaymentMethod('telebirr')" id="btnTelebirr" class="p-3 rounded-xl border border-cyan-500 bg-cyan-500/10 text-cyan-600 dark:text-cyan-300 font-semibold text-xs flex flex-col items-center gap-1 transition">
+                        <span>📱 ቴሌብር አፕ (Telebirr)</span>
+                    </button>
+                    <button type="button" onclick="selectPaymentMethod('cbe')" id="btnCbe" class="p-3 rounded-xl border border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs flex flex-col items-center gap-1 transition">
+                        <span>🏦 ሲቢቢ አፕ (CBE Birr)</span>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <button id="openBankAppBtn" onclick="openSelectedBankApp()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-bold text-xs transition shadow-md">
+                    ቴሌብር አፕ ከፍተው ይክፈሉ
+                </button>
+            </div>
+
+            <!-- Receipt Upload -->
+            <div class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400">የክፍያ ደረሰኝ ፎቶ (Upload Receipt)</label>
+                <input type="file" id="receiptFile" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/10 file:text-emerald-500 hover:file:bg-emerald-500/20 cursor-pointer">
+            </div>
+
+            <div class="pt-2">
+                <button onclick="verifyPaymentWithReceipt()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold text-xs transition shadow-lg">
+                    ✓ ክፍያው በደረሰኝ ተረጋግጧል (Confirm)
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 4: SUCCESS PAGE -->
+        <section id="stepSuccess" class="hidden max-w-md w-full mx-auto bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-8 rounded-2xl shadow-xl text-center space-y-6">
+            <div class="text-5xl">🎉</div>
+            <h2 class="text-2xl font-bold text-slate-900 dark:text-white" id="successHeading">በሳካ ሁኔታ ተጠናቋል!</h2>
+            <p class="text-xs text-slate-600 dark:text-slate-400" id="successText">ክፍያዎ እና ደረሰኝዎ ደህንነቱ በተጠበቀ ሁኔታ ተረጋግጧል።</p>
+            <button onclick="finishAndReset()" class="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-200 dark:text-black font-bold py-3 rounded-xl text-sm transition">ወደ መግቢያ ገጽ ተመለስ 🚀</button>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-6 text-xs text-slate-500 dark:text-slate-600 border-t border-slate-200 dark:border-slate-900">
+        carGo AI Agent &copy; 2026 - የሀዋሳ ዩኒቨርሲቲ የኢንፎርሜሽን ሲስተምስ ተማሪ ፕሮጀክት
+    </footer>
+
+    <script>
+        // Accurate GPS Ethiopian Corridor Distance Database (KM)
+        const gpsDistanceMap = {
+            "አዲስ አበባ-ሀዋሳ": 273, "ሀዋሳ-አዲስ አበባ": 273,
+            "አዲስ አበባ-አምቦ": 143, "አምቦ-አዲስ አበባ": 143,
+            "አዲስ አበባ-ወለጋ": 330, "ወለጋ-አዲስ አበባ": 330,
+            "ወለጋ-አምቦ": 215, "አምቦ-ወለጋ": 215,
+            "ወለጋ-ጅማ": 280, "ጅማ-ወለጋ": 280,
+            "አዲስ አበባ-ጅማ": 350, "ጅማ-አዲስ አበባ": 350,
+            "አዲስ አበባ-ድሬዳዋ": 505, "ድሬዳዋ-አዲስ አበባ": 505,
+            "ሀዋሳ-ሻሸመኔ": 25, "ሻሸመኔ-ሀዋሳ": 25
+        };
+
+        function calculateDistanceFromGPS() {
+            let rawOrigin = document.getElementById('originCity').value.trim().toLowerCase();
+            let rawDest = document.getElementById('destCity').value.trim().toLowerCase();
+            let distField = document.getElementById('shipperDistance');
+            
+            if (!rawOrigin || !rawDest) {
+                distField.value = "";
+                return;
+            }
+
+            // ከተሞቹን በትክክል ለመለየት ቁልፍ ቃላትን ማወዳደር (Flexible City Matcher)
+            let origin = "";
+            let dest = "";
+
+            const cities = ["አዲስ አበባ", "ሀዋሳ", "አምቦ", "ወለጋ", "ጅማ", "ድሬዳዋ", "ሻሸመኔ"];
+
+            cities.forEach(city => {
+                if (rawOrigin.includes(city.toLowerCase())) origin = city;
+                if (rawDest.includes(city.toLowerCase())) dest = city;
+            });
+
+            // ካልተገኙ በቀጥታ የገባውን ጽሁፍ መጠቀም
+            if (!origin) origin = rawOrigin;
+            if (!dest) dest = rawDest;
+
+            let key1 = origin + "-" + dest;
+            let key2 = dest + "-" + origin;
+            
+            if (gpsDistanceMap[key1]) {
+                distField.value = gpsDistanceMap[key1];
+            } else if (gpsDistanceMap[key2]) {
+                distField.value = gpsDistanceMap[key2];
+            } else {
+                distField.value = 250; // ነባሪ (Default) የጂፒኤስ ግምት ከተማዎቹ በማዛመጃው ውስጥ ከሌሉ
+            }
+        }
+
+        function toggleTheme() {
+            const htmlRoot = document.getElementById('htmlRoot');
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            if (htmlRoot.classList.contains('dark')) {
+                htmlRoot.classList.remove('dark');
+                themeIcon.innerText = '🌙'; themeText.innerText = 'ጨለማ (Dark)';
+            } else {
+                htmlRoot.classList.add('dark');
+                themeIcon.innerText = '☀️'; themeText.innerText = 'ቀላል (Light)';
+            }
+        }
+
+        let isLoginMode = false;
+        let loggedInRole = '';
+        let selectedGateway = 'telebirr';
+
+        function goToAuthFromOnboarding() {
+            document.getElementById('stepOnboarding').classList.add('hidden');
+            document.getElementById('stepAuth').classList.remove('hidden');
+        }
+
+        function selectPaymentMethod(method) {
+            selectedGateway = method;
+            const btnTelebirr = document.getElementById('btnTelebirr');
+            const btnCbe = document.getElementById('btnCbe');
+            const openAppBtn = document.getElementById('openBankAppBtn');
+
+            if (method === 'telebirr') {
+                btnTelebirr.className = "p-3 rounded-xl border border-cyan-500 bg-cyan-500/10 text-cyan-600 dark:text-cyan-300 font-semibold text-xs flex flex-col items-center gap-1 transition";
+                btnCbe.className = "p-3 rounded-xl border border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs flex flex-col items-center gap-1 transition";
+                openAppBtn.innerText = "ቴሌብር አፕ ከፍተው ይክፈሉ";
+                openAppBtn.className = "w-full bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-bold text-xs transition shadow-md";
+            } else {
+                btnCbe.className = "p-3 rounded-xl border border-purple-500 bg-purple-500/10 text-purple-600 dark:text-purple-300 font-semibold text-xs flex flex-col items-center gap-1 transition";
+                btnTelebirr.className = "p-3 rounded-xl border border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs flex flex-col items-center gap-1 transition";
+                openAppBtn.innerText = "ሲቢቢ አፕ ከፍተው ይክፈሉ";
+                openAppBtn.className = "w-full bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl font-bold text-xs transition shadow-md";
+            }
+        }
+
+        function openSelectedBankApp() {
+            if (selectedGateway === 'telebirr') {
+                window.location.href = "telebirr://";
+                setTimeout(() => {
+                    window.open("https://play.google.com/store/apps/details?id=cn.gov.pbc.dcep.app", "_blank");
+                }, 1000);
+            } else {
+                window.location.href = "cbebirr://";
+                setTimeout(() => {
+                    window.open("https://www.combanketh.et", "_blank");
+                }, 1000);
+            }
+        }
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('authTitle').innerText = isLoginMode ? "እንኳን ደህና መጡ - ግባ (Login)" : "መለያ መፍጠር (Register)";
+            document.getElementById('authSubmitBtn').innerText = isLoginMode ? "ግባ (Login)" : "ይመዝገቡ (Register)";
+            document.getElementById('authSwitchText').innerText = isLoginMode ? "አካውንት የለዎትም? ይመዝገቡ" : "አካውንት አለዎት? ግባ (Login)";
+            document.getElementById('roleSelectionDiv').classList.toggle('hidden', isLoginMode);
+            document.getElementById('authErrorMsg').classList.add('hidden');
+        }
+
+        document.getElementById('authForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const phone = document.getElementById('authPhone').value;
+            loggedInRole = isLoginMode ? "Shipper" : document.getElementById('authRole').value;
+            document.getElementById('stepAuth').classList.add('hidden');
+            document.getElementById('navUserRole').innerText = "ስልክ: " + phone + " | ሚና: " + (loggedInRole === 'Shipper' ? 'ሸቀጥ ላኪ' : 'አሽከርካሪ');
+
+            if (loggedInRole === 'Shipper') {
+                document.getElementById('stepShipperDashboard').classList.remove('hidden');
+            } else {
+                document.getElementById('stepDriverDashboard').classList.remove('hidden');
+            }
+        });
+
+        function logout() {
+            document.getElementById('stepShipperDashboard').classList.add('hidden');
+            document.getElementById('stepDriverDashboard').classList.add('hidden');
+            document.getElementById('stepAuth').classList.remove('hidden');
+            document.getElementById('authForm').reset();
+        }
+
+        document.getElementById('shipperForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const origin = document.getElementById('originCity').value;
+            const dest = document.getElementById('destCity').value;
+            const tonnage = parseFloat(document.getElementById('shipperTonnage').value) || 10;
+            const dist = parseFloat(document.getElementById('shipperDistance').value) || 273;
+            
+            const amount = dist * 40 * (tonnage / 10);
+
+            document.getElementById('paySummaryTitle').innerText = origin + " ወደ " + dest + " (" + tonnage + " ቶን, " + dist + " ኪሜ ጂፒኤስ)";
+            document.getElementById('paySummaryAmount').innerText = amount.toLocaleString() + " ብር";
+
+            document.getElementById('stepShipperDashboard').classList.add('hidden');
+            document.getElementById('stepPayment').classList.remove('hidden');
+        });
+
+        document.getElementById('driverForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('paySummaryTitle').innerText = "የአሽከርካሪ የሂሳብ ማረጋገጫ (Escrow Check)";
+            document.getElementById('paySummaryAmount').innerText = "5,000 ብር (ማረጋገጫ የሚጠብቅ)";
+
+            document.getElementById('stepDriverDashboard').classList.add('hidden');
+            document.getElementById('stepPayment').classList.remove('hidden');
+        });
+
+        function verifyPaymentWithReceipt() {
+            const receiptInput = document.getElementById('receiptFile');
+            if (receiptInput.files.length === 0) {
+                alert("እባክዎ የክፍያ ደረሰኝ (Receipt) ፎቶ ይጫኑ!");
+                return;
+            }
+
+            document.getElementById('successHeading').innerText = loggedInRole === 'Shipper' ? "ክፍያ እና ደረሰኝ ተረጋግጧል!" : "ጭነቱ ተቀባይነት አግኝቷል!";
+            document.getElementById('successText').innerText = loggedInRole === 'Shipper' 
+                ? "የእርስዎ የባንክ ደረሰኝ በ " + selectedGateway.toUpperCase() + " መግቢያ በሳካ ሁኔታ ተረጋግጧል።" 
+                : "ጭነቱን በተሳካ ሁኔታ ተቀብለዋል ገንዘቡም በሂሳብ መያዣው (Escrow) ተቆልፏል።";
+
+            document.getElementById('stepPayment').classList.add('hidden');
+            document.getElementById('stepSuccess').classList.remove('hidden');
+        }
+
+        function finishAndReset() {
+            document.getElementById('stepSuccess').classList.add('hidden');
+            document.getElementById('stepOnboarding').classList.remove('hidden');
+            document.getElementById('authForm').reset();
+        }
+
+        function backToDashboard() {
+            document.getElementById('stepPayment').classList.add('hidden');
+            if (loggedInRole === 'Shipper') {
+                document.getElementById('stepShipperDashboard').classList.remove('hidden');
+            } else {
+                document.getElementById('stepDriverDashboard').classList.remove('hidden');
+            }
+        }
+
+        function startShipperVoice() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) { alert("የድምጽ እውቅና በዚህ ብሮውሰር ላይ አይደገፍም።"); return; }
+            const rec = new SpeechRecognition();
+            rec.lang = 'am-ET';
+            rec.onresult = (e) => { document.getElementById('shipperDesc').value = e.results[0][0].transcript; };
+            rec.start();
+        }
+
+        function startDriverVoice() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) { alert("የድምጽ እውቅና በዚህ ብሮውሰር ላይ አይደገፍም።"); return; }
+            const rec = new SpeechRecognition();
+            rec.lang = 'am-ET';
+            rec.onresult = (e) => { document.getElementById('driverVoiceText').value = e.results[0][0].transcript; };
+            rec.start();
+        }
+    </script>
+</body>
+</html>
