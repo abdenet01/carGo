@@ -1,437 +1,1396 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en" id="htmlRoot" class="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>carGo - AI Freight Dispatch & Dynamic Capacity Matching</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script> tailwind.config = { darkMode: 'class', } </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>carGo AI Freight Dispatch & Dynamic Capacity Matching</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script> tailwind.config = { darkMode: 'class' } </script>
 </head>
-<body class="bg-black text-slate-100 dark:bg-black dark:text-slate-100 bg-white text-slate-900 min-h-screen flex flex-col justify-between transition-colors duration-300">
-    
-    <!-- Navigation -->
-    <nav class="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-black backdrop-blur px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-            <span class="text-2xl font-black tracking-wider text-emerald-500 dark:text-emerald-400">car<span class="text-slate-900 dark:text-white">Go</span></span>
-            <span class="text-xs bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">AI GPS Agent</span>
+<body class="bg-white text-slate-900 dark:bg-black dark:text-slate-100 min-h-screen flex flex-col justify-between transition-colors duration-300">
+<!-- Navigation -->
+<nav class="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-black backdrop-blur px-6 py-4 flex justify-between items-center">
+<div class="flex items-center space-x-2">
+<span class="text-2xl font-black tracking-wider text-emerald-500 dark:text-emerald-400">car<span class="text-slate-900 dark:text-white">Go</span></span>
+<span class="text-xs bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">AI GPS Agent</span>
+</div>
+<div class="flex items-center space-x-4">
+<div id="navUserRole" class="text-xs text-slate-600 dark:text-slate-400 hidden sm:block"></div>
+<button onclick="toggleTheme()" class="bg-white dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+<span id="themeIcon">🌙</span> <span id="themeText">Dark</span>
+</button>
+</div>
+</nav>
+
+<!-- MAIN CONTAINER -->
+<main class="max-w-4xl mx-auto px-6 py-10 w-full flex-grow flex items-center justify-center">
+
+<!-- STEP 1: ONBOARDING PAGE -->
+<section id="stepOnboarding" class="max-w-lg mx-auto bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-8 rounded-3xl shadow-2xl text-center space-y-6">
+<div class="relative w-full h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-600/20 to-cyan-600/20 border border-emerald-500/30 flex flex-col items-center justify-center p-6">
+<h1 class="text-3xl font-black tracking-wider text-emerald-500 dark:text-emerald-400">car<span class="text-slate-900 dark:text-white">Go</span></h1>
+<p class="text-xs text-slate-600 dark:text-slate-400 mt-1">የኢትዮጵያ አርቴፊሻል ኢንተለጀንስ የጭነት ማከፋፈያ እና ጂፒኤስ ኤጀንት</p>
+</div>
+<div class="space-y-2 text-left">
+<h3 class="font-bold text-slate-900 dark:text-white text-base">እንኳን ወደ carGo መጡ!</h3>
+<p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+በዘመናዊ የጂፒኤስ ርቀት ስሌት፣ በድምጽ ትዕዛዝ (Voice AI) እና በቀጥታ የቴሌብር እና ሲቢቢ ባንክ አፖች አማካኝነት ጭነትዎን ደህንነቱ በተጠበቀ ሁኔታ ያስተላልፉ።
+</p>
+</div>
+<button onclick="goToAuthFromOnboarding()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2">
+<span>ይጀምሩ (Get Started)</span> <span>→</span>
+</button>
+</section>
+
+<!-- STEP 0: AUTHENTICATION (Register / Login) -->
+<section id="stepAuth" class="hidden max-w-md w-full mx-auto bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-8 rounded-2xl shadow-xl space-y-6">
+<div class="text-center space-y-2">
+<h2 id="authTitle" class="text-2xl font-bold text-slate-900 dark:text-white">ምዝገባ (Register)</h2>
+<p id="authSubtitle" class="text-xs text-slate-600 dark:text-slate-400">የስልክ ቁጥርዎን በመጠቀም ወደ ሎጅስቲክስ ስፔስ ይግቡ።</p>
+</div>
+<form id="authForm" class="space-y-4">
+<div>
+<label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">ስልክ ቁጥር (Phone Number)</label>
+<input type="text" id="authPhone" placeholder="0911223344" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
+</div>
+<div>
+<label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">የይለፍ ቃል (Password)</label>
+<input type="password" id="authPassword" placeholder="........" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
+</div>
+<div id="roleSelectionDiv">
+<label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">የሥራ ድርሻ (Select Role)</label>
+<select id="authRole" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white">
+<option value="Shipper">ላኪ (Shipper)</option>
+<option value="Driver">አሽከርካሪ (Driver)</option>
+</select>
+</div>
+<button type="submit" id="authSubmitBtn" class="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-200 dark:text-black font-bold py-3 rounded-xl text-sm transition shadow-lg">ምዝገባ (Register)</button>
+</form>
+<div class="flex justify-between items-center pt-2 text-xs">
+<button type="button" onclick="toggleAuthMode()" id="authSwitchText" class="text-slate-700 dark:text-emerald-400 hover:underline">አካውንት አለዎት? ግባ (Login)</button>
+<button type="button" onclick="showForgotPassword()" id="forgotPasswordLink" class="text-slate-500 hover:underline">የይለፍ ቃል ረሱ? (Forgot)</button>
+</div>
+<div id="authErrorMsg" class="text-xs text-center text-red-500 font-semibold hidden"></div>
+</section>
+
+<!-- STEP 0.1: FORGOT PASSWORD & OTP RESET SECTION -->
+<section id="stepForgot" class="hidden max-w-md w-full mx-auto bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-8 rounded-2xl shadow-xl space-y-6">
+<div class="text-center space-y-2">
+<h2 class="text-2xl font-bold text-slate-900 dark:text-white">የይለፍ ቃል ማስተካከያ (Reset Password)</h2>
+<p class="text-xs text-slate-600 dark:text-slate-400">የስልክ ቁጥርዎን ያስገቡ፤ የኦቲፒ (OTP) ኮድ እንልክልዎታለን።</p>
+</div>
+<div id="forgotStep1" class="space-y-4">
+<div>
+<label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">ስልክ ቁጥር</label>
+<input type="text" id="forgotPhone" placeholder="0911223344" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white">
+</div>
+<button onclick="requestOTP()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg">ኮድ ላክ (Send OTP)</button>
+</div>
+<div id="forgotStep2" class="space-y-4 hidden">
+<div>
+<label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">የኦቲፒ ኮድ (OTP)</label>
+<input type="text" id="otpInput" placeholder="1234" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white tracking-widest text-center font-bold">
+</div>
+<div>
+<label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">አዲስ የይለፍ ቃል (New Password)</label>
+<input type="password" id="newPasswordInput" placeholder="........" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white">
+</div>
+<button onclick="verifyAndResetPassword()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg">አረጋግጥ (Confirm)</button>
+</div>
+<div class="text-center pt-2">
+<button type="button" onclick="backToAuth()" class="text-xs text-slate-500 hover:underline">← ወደ መግቢያ ተመለስ</button>
+</div>
+<div id="forgotErrorMsg" class="text-xs text-center text-red-500 font-semibold hidden"></div>
+</section>
+
+<!-- STEP 1: SHIPPER DASHBOARD -->
+<section id="stepShipperDashboard" class="hidden w-full space-y-8">
+<div class="flex justify-between items-center bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
+<div>
+<span class="text-xs text-slate-500 dark:text-slate-400">የስራ ክፍለ ጊዜ:</span>
+<h3 class="font-bold text-slate-900 dark:text-white text-lg">የላኪ የስራ ቦታ (Shipper Workspace)</h3>
+</div>
+<button onclick="logout()" class="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-500 px-3 py-1.5 rounded-lg border border-red-500/30">ውጣ (Logout)</button>
+</div>
+<div class="bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+<div>
+<h2 class="text-xl font-bold mb-1 text-slate-900 dark:text-white">ጭነት መመዝገቢያ (Post Cargo Load)</h2>
+<p class="text-xs text-slate-600 dark:text-slate-400">ትክክለኛ የጂፒኤስ ርቀት እና በቶን መጠን የሚሰላ ዋጋ።</p>
+</div>
+<form id="shipperForm" class="space-y-4">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">መነሻ ከተማ (Origin City)</label>
+<input type="text" id="originCity" placeholder="አዲስ አበባ / ሀዋሳ" oninput="calculateDistanceFromGPS()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
+</div>
+<div>
+<label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">መድረሻ ከተማ (Destination City)</label>
+<input type="text" id="destCity" placeholder="ድሬዳዋ / ጅማ" oninput="calculateDistanceFromGPS()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">ቶን መጠን (Tonnage)</label>
+<input type="number" id="shipperTonnage" placeholder="30" value="30" oninput="calculateDistanceFromGPS()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
+</div>
+<div>
+<label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">የጂፒኤስ ርቀት (GPS Distance KM)</label>
+<input type="number" id="shipperDistance" readonly class="w-full bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white cursor-not-allowed font-semibold" required>
+</div>
+</div>
+<div>
+<label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">የጭነት መግለጫ (Cargo Description)</label>
+<div class="flex gap-2">
+<input type="text" id="shipperDesc" placeholder="ዕቃ ዝርዝር..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
+<button type="button" onclick="startShipperVoice()" class="bg-red-600/20 text-red-600 dark:text-red-400 px-4 rounded-xl text-xs font-semibold border border-red-500/30">🎙️ ቮይስ</button>
+</div>
+</div>
+<button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-200 dark:text-black font-bold py-3 rounded-xl text-sm transition">ወደ ክፍያ ይቀጥሉ →</button>
+</form>
+</div>
+</section>
+
+<!-- STEP 2: DRIVER DASHBOARD -->
+<section id="stepDriverDashboard" class="hidden w-full space-y-8">
+<div class="flex justify-between items-center bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
+<div>
+<span class="text-xs text-slate-500 dark:text-slate-400">የስራ ክፍለ ጊዜ:</span>
+<h3 class="font-bold text-slate-900 dark:text-white text-lg">የአሽከርካሪ የስራ ቦታ (Driver Backhaul Agent)</h3>
+</div>
+<button onclick="logout()" class="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-500 px-3 py-1.5 rounded-lg border border-red-500/30">ውጣ (Logout)</button>
+</div>
+<div class="bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+<div>
+<h2 class="text-xl font-bold mb-1 text-slate-900 dark:text-white">ድምጽን መሰረት ያደረገ የተመላሽ ጭነት ማስታወቂያ (Voice Backhaul Dispatch)</h2>
+<p class="text-xs text-slate-600 dark:text-slate-400">መኪናዎ ወዴት እንደሚመለስ በድምጽ ይናገሩ፤ ሲስተሙ አውቶማቲካሊ ለሺፐሮች ኖቲፊኬሽን ይልካል።</p>
+</div>
+<form id="driverForm" class="space-y-4">
+<div>
+<label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">የድምጽ ትዕዛዝ (ለምሳሌ፦ ወደ ድሬዳዋ እየተቃረብኩ ነው...)</label>
+<div class="flex gap-2">
+<input type="text" id="driverVoiceText" placeholder="ድምጽዎ እዚህ ይመዘገባል..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
+<button type="button" onclick="startDriverVoice()" id="driverMicBtn" class="bg-red-600/20 text-red-600 dark:text-red-400 px-4 rounded-xl text-xs font-semibold border border-red-500/30">🎙️ ቮይስ</button>
+</div>
+</div>
+<button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-200 dark:text-black font-bold py-3 rounded-xl text-sm transition">ማስታወቂያውን አሰራጭ እና ሺፐሮችን አሳውቅ →</button>
+</form>
+</div>
+</section>
+
+<!-- STEP 3: SEPARATE PAYMENT PAGE -->
+<!-- የክፍያ ማስፈጸሚያ ዴሞ ገጽ -->
+<div id="stepPayment" class="hidden max-w-md mx-auto bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+    <h2 class="text-lg font-bold text-slate-800 dark:text-white">የክፍያ ማረጋገጫ (Payment Demo)</h2>
+    <p id="paySummaryTitle" class="text-xs text-slate-500 dark:text-slate-400"></p>
+    <div class="p-3 bg-slate-100 dark:bg-slate-900 rounded-xl text-center">
+        <span class="text-xs text-slate-400">ሊከፈል የሚገባው ጠቅላላ ገንዘብ</span>
+        <div id="paySummaryAmount" class="text-xl font-extrabold text-cyan-600">0 ብር</div>
+    </div>
+
+    <!-- የክፍያ መተግበሪያ ምርጫ -->
+    <div class="grid grid-cols-2 gap-2">
+        <button type="button" id="btnTelebirr" onclick="selectPaymentMethod('telebirr')" class="p-3 rounded-xl border border-cyan-500 bg-cyan-500/10 text-cyan-600 font-semibold text-xs flex flex-col items-center gap-1 transition">ቴሌብር (Telebirr)</button>
+        <button type="button" id="btnCbe" onclick="selectPaymentMethod('cbe')" class="p-3 rounded-xl border border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs flex flex-col items-center gap-1 transition">ሲቢኢ ብር (CBE Birr)</button>
+    </div>
+
+    <!-- የዲሞ ማስገቢያ ፎርም (ስም እና ቁጥር) -->
+    <div class="space-y-3 pt-2">
+        <div>
+            <label class="text-xs text-slate-500 dark:text-slate-400 font-medium">የከፋዩ ሙሉ ስም (Sender Name)</label>
+            <input type="text" id="demoSenderName" placeholder="ለምሳሌ፦ አበበ ከበደ" class="w-full mt-1 p-2.5 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white">
         </div>
-        <div class="flex items-center space-x-4">
-            <div id="navUserRole" class="text-xs text-slate-600 dark:text-slate-400 hidden sm:block">የኢትዮጵያ የሎጅስቲክስ ኮሪደር</div>
-            <button onclick="toggleTheme()" class="bg-white dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700 px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5 shadow-sm">
-                <span id="themeIcon">☀️</span> <span id="themeText">ቀላል (Light)</span>
-            </button>
+        <div>
+            <label id="demoAccountLabel" class="text-xs text-slate-500 dark:text-slate-400 font-medium">የሰጪው ስልክ ቁጥር (Telebirr Phone)</label>
+            <input type="text" id="demoAccountOrPhone" placeholder="09xxxxxxxx" class="w-full mt-1 p-2.5 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-white">
         </div>
-    </nav>
+        <div>
+            <label id="demoReceiverLabel" class="text-xs text-slate-500 dark:text-slate-400 font-medium">የተቀባይ አካውንት/ስልክ ቁጥር</label>
+            <input type="text" id="demoReceiverInfo" value="0911223344 (Telebirr Merchant)"  class="w-full mt-1 p-2.5 text-xs bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-500">
+        </div>
+    </div>
 
-    <!-- MAIN CONTAINER -->
-    <main class="max-w-4xl mx-auto px-6 py-10 w-full flex-grow flex items-center justify-center">
-        
-        <!-- STEP -1: ONBOARDING PAGE -->
-        <section id="stepOnboarding" class="max-w-lg mx-auto bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-8 rounded-3xl shadow-2xl text-center space-y-6">
-            <div class="relative w-full h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-600/20 to-cyan-600/20 border border-emerald-500/30 flex flex-col items-center justify-center p-6">
-                <div class="text-4xl mb-2">🚛 ⚡ 🛰️</div>
-                <h1 class="text-3xl font-black tracking-wider text-emerald-500 dark:text-emerald-400">car<span class="text-slate-900 dark:text-white">Go</span></h1>
-                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">የኢትዮጵያ አርቴፊሻል ኢንተለጀንስ የጭነት ማከፋፈያ እና ጂፒኤስ ኤጀንት</p>
-            </div>
+    <button type="button" onclick="submitDemoPayment()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-bold text-xs transition shadow-md">
+        ክፍያውን አጠናቅ (Confirm Payment)
+    </button>
+    <button type="button" onclick="backToDashboard()" class="w-full text-slate-500 text-xs py-1">ወደ ዳሽቦርድ ተመለስ</button>
+</div>
 
-            <div class="space-y-2 text-left">
-                <h3 class="font-bold text-slate-900 dark:text-white text-base">እንኳን ወደ carGo መጡ!</h3>
-                <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    በዘመናዊ የጂፒኤስ ርቀት ስሌት፣ በድምጽ ትዕዛዝ (Voice AI) እና በቀጥታ የቴሌብር እና ሲቢቢ ባንክ አፖች አማካኝነት ጭነትዎን ደህንነቱ በተጠበቀ ሁኔታ ያስተላልፉ።
-                </p>
-            </div>
 
-            <button onclick="goToAuthFromOnboarding()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2">
-                <span>ጀምር (Get Started)</span> <span>→</span>
-            </button>
-        </section>
 
-        <!-- STEP 0: AUTHENTICATION -->
-        <section id="stepAuth" class="hidden max-w-md w-full mx-auto bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-8 rounded-2xl shadow-xl space-y-6">
-            <div class="text-center space-y-2">
-                <h2 id="authTitle" class="text-2xl font-bold text-slate-900 dark:text-white">መለያ መፍጠር (Register)</h2>
-                <p id="authSubtitle" class="text-xs text-slate-600 dark:text-slate-400">የስልክ ቁጥርዎን በመጠቀም ወደ ሎጅስቲክስ ስፔስ ይግቡ።</p>
-            </div>
+</main>
 
-            <form id="authForm" class="space-y-4">
-                <div>
-                    <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">ስልክ ቁጥር (Phone Number)</label>
-                    <input type="text" id="authPhone" placeholder="0911223344" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
-                </div>
-                <div>
-                    <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">የይለፍ ቃል (Password)</label>
-                    <input type="password" id="authPassword" placeholder="••••••••" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
-                </div>
-                <div id="roleSelectionDiv">
-                    <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">ሚና ይምረጡ (Select Role)</label>
-                    <select id="authRole" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white">
-                        <option value="Shipper">ሸቀጥ ላኪ (Shipper)</option>
-                        <option value="Driver">አሽከርካሪ (Driver)</option>
-                    </select>
-                </div>
-                <button type="submit" id="authSubmitBtn" class="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-200 dark:text-black font-bold py-3 rounded-xl text-sm transition shadow-lg">ይመዝገቡ (Register)</button>
-            </form>
+<footer class="text-center py-6 text-xs text-slate-500 dark:text-slate-600 border-t border-slate-200 dark:border-slate-900">
+carGo AI Agent &copy; 2026 | የኢትዮጵያ የሎጅስቲክስ ኮሪደር | በቴክኖሎጂ የተመሰረተ
+</footer>
 
-            <div class="text-center pt-2">
-                <button type="button" onclick="toggleAuthMode()" id="authSwitchText" class="text-xs text-slate-700 dark:text-emerald-400 hover:underline">አካውንት አለዎት? ግባ (Login)</button>
-            </div>
-            <div id="authErrorMsg" class="text-xs text-center text-red-500 font-semibold hidden"></div>
-        </section>
+<script>
+const ethiopianCities = {
+    "አዲስ አበባ": { lat: 9.02497, lon: 38.74689 },
+    "አዳማ": { lat: 8.55000, lon: 39.26667 },
+    "ሀዋሳ": { lat: 7.06205, lon: 38.47635 },
+    "ጅማ": { lat: 7.67310, lon: 36.83440 },
+    "ድሬዳዋ": { lat: 9.59306, lon: 41.86611 },
+    "ጅጅጋ": { lat: 9.35000, lon: 42.80000 },
+    "ሐረር": { lat: 9.31387, lon: 42.11815 },
+    "ባህር ዳር": { lat: 11.59364, lon: 37.39077 },
+    "ጎንደር": { lat: 12.60000, lon: 37.46667 },
+    "መቀሌ": { lat: 13.49667, lon: 39.47528 },
+    "ደሴ": { lat: 11.13333, lon: 39.63333 },
+    "ሻሸመኔ": { lat: 7.20000, lon: 38.60000 },
+    "አምቦ": { lat: 8.98333, lon: 37.85000 },
+    "አሰላ": { lat: 7.95000, lon: 39.13333 },
+    "አርባ ምንጭ": { lat: 6.03333, lon: 37.55000 },
+    "ሆሳዕና": { lat: 7.54978, lon: 37.85374 },
+    "ዲላ": { lat: 6.41667, lon: 38.31667 },
+    "ወሊሶ": { lat: 8.53417, lon: 37.96515 },
+    "ሰበታ": { lat: 8.91667, lon: 38.61667 },
+    "ቢሾፍቱ": { lat: 8.75225, lon: 38.97846 },
+    "ደብረ ብርሃን": { lat: 9.67954, lon: 39.53262 },
+    "ደብረ ማርቆስ": { lat: 10.35000, lon: 37.73333 },
+    "ላሊበላ": { lat: 12.03219, lon: 39.04756 },
+    "ደብረ ታቦር": { lat: 11.85000, lon: 38.01667 },
+    "አክሱም": { lat: 14.12109, lon: 38.72337 },
+    "አድዋ": { lat: 14.16347, lon: 38.89924 },
+    "አዲግራት": { lat: 14.27700, lon: 39.46200 },
+    "አሶሳ": { lat: 10.06667, lon: 34.53333 },
+    "ጋምቤላ": { lat: 8.25000, lon: 34.58333 },
+    "ሰመራ": { lat: 11.79342, lon: 41.00578 },
+    "ሰቆጣ": { lat: 12.63056, lon: 39.03472 },
+    "ነቀምት": { lat: 9.09000, lon: 36.54000 },
+    "ወልቂጤ": { lat: 8.28333, lon: 37.78333 },
+    "ወልዲያ": { lat: 11.82770, lon: 39.59164 },
+    "ይርጋ አለም": { lat: 6.75000, lon: 38.41667 },
+    "ቴፒ": { lat: 7.20000, lon: 35.45000 },
+    "አረካ": { lat: 7.06667, lon: 37.70000 },
+    "ቡታጅራ": { lat: 8.11667, lon: 38.36667 }
+};
 
-        <!-- STEP 1: SHIPPER DASHBOARD -->
-        <section id="stepShipperDashboard" class="hidden w-full space-y-8">
-            <div class="flex justify-between items-center bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
-                <div>
-                    <span class="text-xs text-slate-500 dark:text-slate-400">የስራ ቦታ:</span>
-                    <h3 class="font-bold text-slate-900 dark:text-white text-lg">የሸቀጥ ላኪ ማዕከል (Shipper Workspace)</h3>
-                </div>
-                <button onclick="logout()" class="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-500 px-3 py-1.5 rounded-lg border border-red-500/30">ውጣ (Logout)</button>
-            </div>
 
-            <div class="bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
-                <div>
-                    <h2 class="text-xl font-bold mb-1 text-slate-900 dark:text-white">ጭነትዎን ያስመዝግቡ (Post Cargo Load)</h2>
-                    <p class="text-xs text-slate-600 dark:text-slate-400">ትክክለኛ የጂፒኤስ ርቀት እና በቶን መጠን የሚሰላ ዋጋ።</p>
-                </div>
-                
-                <form id="shipperForm" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">መነሻ ከተማ (Origin City)</label>
-                            <input type="text" id="originCity" placeholder="አዲስ አበባ / ሀዋሳ" oninput="calculateDistanceFromGPS()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
-                        </div>
-                        <div>
-                            <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">መድረሻ ከተማ (Destination City)</label>
-                            <input type="text" id="destCity" placeholder="ሀዋሳ / አምቦ / ጅማ" oninput="calculateDistanceFromGPS()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
-                        </div>
-                    </div>
+/* ============================================================
+   HAVERSINE FORMULA
+   ============================================================ */
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">የጭነት መጠን በቶን (Tonnage)</label>
-                            <input type="number" id="shipperTonnage" placeholder="30" value="30" oninput="calculateDistanceFromGPS()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
-                        </div>
-                        <div>
-                            <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">የጂፒኤስ ርቀት (GPS Distance KM)</label>
-                            <input type="number" id="shipperDistance" readonly class="w-full bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white cursor-not-allowed font-semibold" required>
-                        </div>
-                    </div>
+function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
 
-                    <div>
-                        <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">የጭነት ማብራሪያ (Cargo Description)</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="shipperDesc" placeholder="ማብራሪያ......" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
-                            <button type="button" onclick="startShipperVoice()" class="bg-red-600/20 text-red-600 dark:text-red-400 px-4 rounded-xl text-xs font-semibold border border-red-500/30">🎤 ድምጽ</button>
-                        </div>
-                    </div>
+    const EARTH_RADIUS_KM = 6371;
 
-                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-200 dark:text-black font-bold py-3 rounded-xl text-sm transition">ወደ ባንክ ክፍያ ይቀጥሉ →</button>
-                </form>
-            </div>
-        </section>
+    const toRadians = degrees => {
+        return degrees * Math.PI / 180;
+    };
 
-        <!-- STEP 2: DRIVER DASHBOARD -->
-        <section id="stepDriverDashboard" class="hidden w-full space-y-8">
-            <div class="flex justify-between items-center bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
-                <div>
-                    <span class="text-xs text-slate-500 dark:text-slate-400">የስራ ቦታ:</span>
-                    <h3 class="font-bold text-slate-900 dark:text-white text-lg">የአሽከርካሪ ማዕከል (Driver Workspace)</h3>
-                </div>
-                <button onclick="logout()" class="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-500 px-3 py-1.5 rounded-lg border border-red-500/30">ውጣ (Logout)</button>
-            </div>
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
 
-            <div class="bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
-                <div>
-                    <h2 class="text-xl font-bold mb-1 text-slate-900 dark:text-white">የድምጽ ትዕዛዝ እና የሂሳብ ማረጋገጫ (Voice Dispatch & Escrow Check)</h2>
-                    <p class="text-xs text-slate-600 dark:text-slate-400">ገቢ ክፍያዎችን አረጋግጠው ጭነቱን በድምጽ ይቀበሉ።</p>
-                </div>
-                
-                <form id="driverForm" class="space-y-4">
-                    <div>
-                        <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">የድምጽ / የጽሁፍ ማብራሪያ</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="driverVoiceText" placeholder="ማይክሮፎኑን በመንካት ይናገሩ..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-900 dark:text-white" required>
-                            <button type="button" onclick="startDriverVoice()" id="driverMicBtn" class="bg-red-600/20 text-red-600 dark:text-red-400 px-4 rounded-xl text-xs font-semibold border border-red-500/30">🎤 ድምጽ</button>
-                        </div>
-                    </div>
-                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-200 dark:text-black font-bold py-3 rounded-xl text-sm transition">ክፍያውን አረጋግጥ እና ጭነት ተቀበል →</button>
-                </form>
-            </div>
-        </section>
+    const lat1Rad = toRadians(lat1);
+    const lat2Rad = toRadians(lat2);
 
-        <!-- STEP 3: SEPARATE PAYMENT PAGE -->
-        <section id="stepPayment" class="hidden max-w-md w-full mx-auto bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-8 rounded-2xl shadow-xl space-y-6">
-            <div class="flex justify-between items-center mb-2">
-                <button onclick="backToDashboard()" class="text-xs bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1">
-                    ← ተመለስ (Back)
-                </button>
-                <span class="text-xs text-slate-500">ደህንነቱ የተጠበቀ ክፍያ</span>
-            </div>
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(lat1Rad) *
+        Math.cos(lat2Rad) *
+        Math.sin(dLon / 2) ** 2;
 
-            <div class="text-center">
-                <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">ቀጥተኛ የባንክ መተግበሪያ ክፍያ</h2>
-                <p class="text-xs text-slate-600 dark:text-slate-400">የባንክ አማራጭ ይምረጡ፣ ክፍያውን ፈጽመው ደረሰኝ ይጫኑ።</p>
-            </div>
-            
-            <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl text-left text-xs space-y-2 border border-slate-200 dark:border-slate-800">
-                <div><span class="text-slate-500">መንገድ/ዝርዝር:</span> <span id="paySummaryTitle" class="font-bold text-slate-900 dark:text-white">የጭነት ክፍያ</span></div>
-                <div><span class="text-slate-500">የተሰላው ጠቅላላ ዋጋ:</span> <span id="paySummaryAmount" class="font-bold text-emerald-500 text-sm">0 ብር</span></div>
-            </div>
+    const c =
+        2 * Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1 - a)
+        );
 
-            <!-- Payment Method Selection -->
-            <div class="space-y-3">
-                <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400">የባንክ መተግበሪያ ይምረጡ</label>
-                <div class="grid grid-cols-2 gap-3">
-                    <button type="button" onclick="selectPaymentMethod('telebirr')" id="btnTelebirr" class="p-3 rounded-xl border border-cyan-500 bg-cyan-500/10 text-cyan-600 dark:text-cyan-300 font-semibold text-xs flex flex-col items-center gap-1 transition">
-                        <span>📱 ቴሌብር አፕ (Telebirr)</span>
-                    </button>
-                    <button type="button" onclick="selectPaymentMethod('cbe')" id="btnCbe" class="p-3 rounded-xl border border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs flex flex-col items-center gap-1 transition">
-                        <span>🏦 ሲቢቢ አፕ (CBE Birr)</span>
-                    </button>
-                </div>
-            </div>
+    return EARTH_RADIUS_KM * c;
+}
 
-            <div>
-                <button id="openBankAppBtn" onclick="openSelectedBankApp()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-bold text-xs transition shadow-md">
-                    ቴሌብር አፕ ከፍተው ይክፈሉ
-                </button>
-            </div>
 
-            <!-- Receipt Upload -->
-            <div class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
-                <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400">የክፍያ ደረሰኝ ፎቶ (Upload Receipt)</label>
-                <input type="file" id="receiptFile" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/10 file:text-emerald-500 hover:file:bg-emerald-500/20 cursor-pointer">
-            </div>
+/* ============================================================
+   FIND ETHIOPIAN CITY
+   ============================================================ */
 
-            <div class="pt-2">
-                <button onclick="verifyPaymentWithReceipt()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold text-xs transition shadow-lg">
-                    ✓ ክፍያው በደረሰኝ ተረጋግጧል (Confirm)
-                </button>
-            </div>
-        </section>
+function findEthiopianCity(input) {
 
-        <!-- STEP 4: SUCCESS PAGE -->
-        <section id="stepSuccess" class="hidden max-w-md w-full mx-auto bg-white dark:bg-black border border-slate-200 dark:border-slate-800 p-8 rounded-2xl shadow-xl text-center space-y-6">
-            <div class="text-5xl">🎉</div>
-            <h2 class="text-2xl font-bold text-slate-900 dark:text-white" id="successHeading">በሳካ ሁኔታ ተጠናቋል!</h2>
-            <p class="text-xs text-slate-600 dark:text-slate-400" id="successText">ክፍያዎ እና ደረሰኝዎ ደህንነቱ በተጠበቀ ሁኔታ ተረጋግጧል።</p>
-            <button onclick="finishAndReset()" class="w-full bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-200 dark:text-black font-bold py-3 rounded-xl text-sm transition">ወደ መግቢያ ገጽ ተመለስ 🚀</button>
-        </section>
+    if (!input) {
+        return null;
+    }
 
-    </main>
+    const value = input.trim().toLowerCase();
 
-    <footer class="text-center py-6 text-xs text-slate-500 dark:text-slate-600 border-t border-slate-200 dark:border-slate-900">
-        carGo AI Agent &copy; 2026 - የሀዋሳ ዩኒቨርሲቲ የኢንፎርሜሽን ሲስተምስ ተማሪ ፕሮጀክት
-    </footer>
+    for (const city of Object.keys(ethiopianCities)) {
 
-    <script>
-        // Accurate GPS Ethiopian Corridor Distance Database (KM)
-        const gpsDistanceMap = {
-            "አዲስ አበባ-ሀዋሳ": 273, "ሀዋሳ-አዲስ አበባ": 273,
-            "አዲስ አበባ-አምቦ": 143, "አምቦ-አዲስ አበባ": 143,
-            "አዲስ አበባ-ወለጋ": 330, "ወለጋ-አዲስ አበባ": 330,
-            "ወለጋ-አምቦ": 215, "አምቦ-ወለጋ": 215,
-            "ወለጋ-ጅማ": 280, "ጅማ-ወለጋ": 280,
-            "አዲስ አበባ-ጅማ": 350, "ጅማ-አዲስ አበባ": 350,
-            "አዲስ አበባ-ድሬዳዋ": 505, "ድሬዳዋ-አዲስ አበባ": 505,
-            "ሀዋሳ-ሻሸመኔ": 25, "ሻሸመኔ-ሀዋሳ": 25
-        };
+        if (city.toLowerCase() === value) {
+            return city;
+        }
 
-        function calculateDistanceFromGPS() {
-            let rawOrigin = document.getElementById('originCity').value.trim().toLowerCase();
-            let rawDest = document.getElementById('destCity').value.trim().toLowerCase();
-            let distField = document.getElementById('shipperDistance');
-            
-            if (!rawOrigin || !rawDest) {
-                distField.value = "";
-                return;
-            }
+        if (value.includes(city.toLowerCase())) {
+            return city;
+        }
+    }
 
-            // ከተሞቹን በትክክል ለመለየት ቁልፍ ቃላትን ማወዳደር (Flexible City Matcher)
-            let origin = "";
-            let dest = "";
+    return null;
+}
 
-            const cities = ["አዲስ አበባ", "ሀዋሳ", "አምቦ", "ወለጋ", "ጅማ", "ድሬዳዋ", "ሻሸመኔ"];
 
-            cities.forEach(city => {
-                if (rawOrigin.includes(city.toLowerCase())) origin = city;
-                if (rawDest.includes(city.toLowerCase())) dest = city;
+/* ============================================================
+   CALCULATE DISTANCE FROM GPS COORDINATES
+   ============================================================ */
+
+function calculateDistanceFromGPS() {
+
+    const originElement =
+        document.getElementById("originCity");
+
+    const destinationElement =
+        document.getElementById("destCity");
+
+    const distanceElement =
+        document.getElementById("shipperDistance");
+
+
+    if (
+        !originElement ||
+        !destinationElement ||
+        !distanceElement
+    ) {
+        console.error("GPS distance elements not found.");
+        return;
+    }
+
+
+    const originInput =
+        originElement.value.trim();
+
+    const destinationInput =
+        destinationElement.value.trim();
+
+
+    // Wait until both cities are entered
+    if (!originInput || !destinationInput) {
+
+        distanceElement.value = "";
+
+        return;
+    }
+
+
+    // Find the cities
+    const originCity =
+        findEthiopianCity(originInput);
+
+    const destinationCity =
+        findEthiopianCity(destinationInput);
+
+
+    // Invalid origin
+    if (!originCity) {
+
+        distanceElement.value = "";
+
+        console.warn(
+            "Origin city not found:",
+            originInput
+        );
+
+        return;
+    }
+
+
+    // Invalid destination
+    if (!destinationCity) {
+
+        distanceElement.value = "";
+
+        console.warn(
+            "Destination city not found:",
+            destinationInput
+        );
+
+        return;
+    }
+
+
+    // Same city
+    if (originCity === destinationCity) {
+
+        distanceElement.value = "0";
+
+        return;
+    }
+
+
+    // Get coordinates
+    const origin =
+        ethiopianCities[originCity];
+
+    const destination =
+        ethiopianCities[destinationCity];
+
+
+    // Haversine GPS calculation
+    const distance =
+        calculateHaversineDistance(
+            origin.lat,
+            origin.lon,
+            destination.lat,
+            destination.lon
+        );
+
+
+    // Display distance in KM
+    distanceElement.value =
+        distance.toFixed(1);
+
+
+    console.log(
+        `GPS Distance: ${originCity} → ${destinationCity} = ${distance.toFixed(1)} km`
+    );
+}
+
+
+/* ============================================================
+   THEME
+   ============================================================ */
+
+function toggleTheme() {
+
+    const htmlRoot =
+        document.getElementById("htmlRoot");
+
+    const themeIcon =
+        document.getElementById("themeIcon");
+
+    const themeText =
+        document.getElementById("themeText");
+
+
+    if (htmlRoot.classList.contains("dark")) {
+
+        htmlRoot.classList.remove("dark");
+
+        themeIcon.innerText = "🌙";
+
+        themeText.innerText = "Dark";
+
+    } else {
+
+        htmlRoot.classList.add("dark");
+
+        themeIcon.innerText = "☀️";
+
+        themeText.innerText = "Light";
+    }
+}
+
+
+let isLoginMode = false;
+let loggedInRole = "";
+let selectedGateway = "telebirr";
+let temporaryResetPhone = "";
+let currentAuthPhone = "";
+
+
+/* ============================================================
+   AUTHENTICATION NAVIGATION
+   ============================================================ */
+
+function goToAuthFromOnboarding() {
+
+    document
+        .getElementById("stepOnboarding")
+        .classList.add("hidden");
+
+    document
+        .getElementById("stepAuth")
+        .classList.remove("hidden");
+}
+
+
+function toggleAuthMode() {
+
+    isLoginMode = !isLoginMode;
+
+    document.getElementById("authTitle").innerText =
+        isLoginMode
+            ? "እንኳን ደህና መጡ - ግባ (Login)"
+            : "ምዝገባ (Register)";
+
+    document.getElementById("authSubmitBtn").innerText =
+        isLoginMode
+            ? "ግባ (Login)"
+            : "ምዝገባ (Register)";
+
+    document.getElementById("authSwitchText").innerText =
+        isLoginMode
+            ? "አካውንት የለዎትም? ይመዝገቡ"
+            : "አካውንት አለዎት? ግባ (Login)";
+
+    document
+        .getElementById("roleSelectionDiv")
+        .classList
+        .toggle("hidden", isLoginMode);
+
+    document
+        .getElementById("forgotPasswordLink")
+        .classList
+        .toggle("hidden", !isLoginMode);
+
+    document
+        .getElementById("authErrorMsg")
+        .classList
+        .add("hidden");
+}
+
+
+function showForgotPassword() {
+
+    document
+        .getElementById("stepAuth")
+        .classList
+        .add("hidden");
+
+    document
+        .getElementById("stepForgot")
+        .classList
+        .remove("hidden");
+
+    document
+        .getElementById("forgotStep1")
+        .classList
+        .remove("hidden");
+
+    document
+        .getElementById("forgotStep2")
+        .classList
+        .add("hidden");
+
+    document
+        .getElementById("forgotErrorMsg")
+        .classList
+        .add("hidden");
+}
+
+
+function backToAuth() {
+
+    document
+        .getElementById("stepForgot")
+        .classList
+        .add("hidden");
+
+    document
+        .getElementById("stepAuth")
+        .classList
+        .remove("hidden");
+}
+
+
+/* ============================================================
+   BACKEND AUTHENTICATION
+   ============================================================ */
+
+document
+    .getElementById("authForm")
+    .addEventListener("submit", async function(e) {
+
+        e.preventDefault();
+
+        const phone =
+            document.getElementById("authPhone").value;
+
+        const password =
+            document.getElementById("authPassword").value;
+
+        const role =
+            document.getElementById("authRole").value;
+
+        const errorMsg =
+            document.getElementById("authErrorMsg");
+
+        currentAuthPhone = phone;
+
+
+        const endpoint = isLoginMode
+            ? "http://127.0.0.1:8000/api/login"
+            : "http://127.0.0.1:8000/api/register";
+
+
+        try {
+
+            const response = await fetch(endpoint, {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    phone,
+                    password,
+                    role
+                })
             });
 
-            // ካልተገኙ በቀጥታ የገባውን ጽሁፍ መጠቀም
-            if (!origin) origin = rawOrigin;
-            if (!dest) dest = rawDest;
 
-            let key1 = origin + "-" + dest;
-            let key2 = dest + "-" + origin;
-            
-            if (gpsDistanceMap[key1]) {
-                distField.value = gpsDistanceMap[key1];
-            } else if (gpsDistanceMap[key2]) {
-                distField.value = gpsDistanceMap[key2];
-            } else {
-                distField.value = 250; // ነባሪ (Default) የጂፒኤስ ግምት ከተማዎቹ በማዛመጃው ውስጥ ከሌሉ
-            }
-        }
+            const data =
+                await response.json();
 
-        function toggleTheme() {
-            const htmlRoot = document.getElementById('htmlRoot');
-            const themeIcon = document.getElementById('themeIcon');
-            const themeText = document.getElementById('themeText');
-            if (htmlRoot.classList.contains('dark')) {
-                htmlRoot.classList.remove('dark');
-                themeIcon.innerText = '🌙'; themeText.innerText = 'ጨለማ (Dark)';
-            } else {
-                htmlRoot.classList.add('dark');
-                themeIcon.innerText = '☀️'; themeText.innerText = 'ቀላል (Light)';
-            }
-        }
 
-        let isLoginMode = false;
-        let loggedInRole = '';
-        let selectedGateway = 'telebirr';
+            if (!data.success) {
 
-        function goToAuthFromOnboarding() {
-            document.getElementById('stepOnboarding').classList.add('hidden');
-            document.getElementById('stepAuth').classList.remove('hidden');
-        }
+                errorMsg.innerText =
+                    data.message;
 
-        function selectPaymentMethod(method) {
-            selectedGateway = method;
-            const btnTelebirr = document.getElementById('btnTelebirr');
-            const btnCbe = document.getElementById('btnCbe');
-            const openAppBtn = document.getElementById('openBankAppBtn');
+                errorMsg.classList
+                    .remove("hidden");
 
-            if (method === 'telebirr') {
-                btnTelebirr.className = "p-3 rounded-xl border border-cyan-500 bg-cyan-500/10 text-cyan-600 dark:text-cyan-300 font-semibold text-xs flex flex-col items-center gap-1 transition";
-                btnCbe.className = "p-3 rounded-xl border border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs flex flex-col items-center gap-1 transition";
-                openAppBtn.innerText = "ቴሌብር አፕ ከፍተው ይክፈሉ";
-                openAppBtn.className = "w-full bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-bold text-xs transition shadow-md";
-            } else {
-                btnCbe.className = "p-3 rounded-xl border border-purple-500 bg-purple-500/10 text-purple-600 dark:text-purple-300 font-semibold text-xs flex flex-col items-center gap-1 transition";
-                btnTelebirr.className = "p-3 rounded-xl border border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs flex flex-col items-center gap-1 transition";
-                openAppBtn.innerText = "ሲቢቢ አፕ ከፍተው ይክፈሉ";
-                openAppBtn.className = "w-full bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl font-bold text-xs transition shadow-md";
-            }
-        }
-
-        function openSelectedBankApp() {
-            if (selectedGateway === 'telebirr') {
-                window.location.href = "telebirr://";
-                setTimeout(() => {
-                    window.open("https://play.google.com/store/apps/details?id=cn.gov.pbc.dcep.app", "_blank");
-                }, 1000);
-            } else {
-                window.location.href = "cbebirr://";
-                setTimeout(() => {
-                    window.open("https://www.combanketh.et", "_blank");
-                }, 1000);
-            }
-        }
-
-        function toggleAuthMode() {
-            isLoginMode = !isLoginMode;
-            document.getElementById('authTitle').innerText = isLoginMode ? "እንኳን ደህና መጡ - ግባ (Login)" : "መለያ መፍጠር (Register)";
-            document.getElementById('authSubmitBtn').innerText = isLoginMode ? "ግባ (Login)" : "ይመዝገቡ (Register)";
-            document.getElementById('authSwitchText').innerText = isLoginMode ? "አካውንት የለዎትም? ይመዝገቡ" : "አካውንት አለዎት? ግባ (Login)";
-            document.getElementById('roleSelectionDiv').classList.toggle('hidden', isLoginMode);
-            document.getElementById('authErrorMsg').classList.add('hidden');
-        }
-
-        document.getElementById('authForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const phone = document.getElementById('authPhone').value;
-            loggedInRole = isLoginMode ? "Shipper" : document.getElementById('authRole').value;
-            document.getElementById('stepAuth').classList.add('hidden');
-            document.getElementById('navUserRole').innerText = "ስልክ: " + phone + " | ሚና: " + (loggedInRole === 'Shipper' ? 'ሸቀጥ ላኪ' : 'አሽከርካሪ');
-
-            if (loggedInRole === 'Shipper') {
-                document.getElementById('stepShipperDashboard').classList.remove('hidden');
-            } else {
-                document.getElementById('stepDriverDashboard').classList.remove('hidden');
-            }
-        });
-
-        function logout() {
-            document.getElementById('stepShipperDashboard').classList.add('hidden');
-            document.getElementById('stepDriverDashboard').classList.add('hidden');
-            document.getElementById('stepAuth').classList.remove('hidden');
-            document.getElementById('authForm').reset();
-        }
-
-        document.getElementById('shipperForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const origin = document.getElementById('originCity').value;
-            const dest = document.getElementById('destCity').value;
-            const tonnage = parseFloat(document.getElementById('shipperTonnage').value) || 10;
-            const dist = parseFloat(document.getElementById('shipperDistance').value) || 273;
-            
-            const amount = dist * 40 * (tonnage / 10);
-
-            document.getElementById('paySummaryTitle').innerText = origin + " ወደ " + dest + " (" + tonnage + " ቶን, " + dist + " ኪሜ ጂፒኤስ)";
-            document.getElementById('paySummaryAmount').innerText = amount.toLocaleString() + " ብር";
-
-            document.getElementById('stepShipperDashboard').classList.add('hidden');
-            document.getElementById('stepPayment').classList.remove('hidden');
-        });
-
-        document.getElementById('driverForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('paySummaryTitle').innerText = "የአሽከርካሪ የሂሳብ ማረጋገጫ (Escrow Check)";
-            document.getElementById('paySummaryAmount').innerText = "5,000 ብር (ማረጋገጫ የሚጠብቅ)";
-
-            document.getElementById('stepDriverDashboard').classList.add('hidden');
-            document.getElementById('stepPayment').classList.remove('hidden');
-        });
-
-        function verifyPaymentWithReceipt() {
-            const receiptInput = document.getElementById('receiptFile');
-            if (receiptInput.files.length === 0) {
-                alert("እባክዎ የክፍያ ደረሰኝ (Receipt) ፎቶ ይጫኑ!");
                 return;
             }
 
-            document.getElementById('successHeading').innerText = loggedInRole === 'Shipper' ? "ክፍያ እና ደረሰኝ ተረጋግጧል!" : "ጭነቱ ተቀባይነት አግኝቷል!";
-            document.getElementById('successText').innerText = loggedInRole === 'Shipper' 
-                ? "የእርስዎ የባንክ ደረሰኝ በ " + selectedGateway.toUpperCase() + " መግቢያ በሳካ ሁኔታ ተረጋግጧል።" 
-                : "ጭነቱን በተሳካ ሁኔታ ተቀብለዋል ገንዘቡም በሂሳብ መያዣው (Escrow) ተቆልፏል።";
 
-            document.getElementById('stepPayment').classList.add('hidden');
-            document.getElementById('stepSuccess').classList.remove('hidden');
-        }
+            loggedInRole =
+                isLoginMode
+                    ? data.role
+                    : role;
 
-        function finishAndReset() {
-            document.getElementById('stepSuccess').classList.add('hidden');
-            document.getElementById('stepOnboarding').classList.remove('hidden');
-            document.getElementById('authForm').reset();
-        }
 
-        function backToDashboard() {
-            document.getElementById('stepPayment').classList.add('hidden');
-            if (loggedInRole === 'Shipper') {
-                document.getElementById('stepShipperDashboard').classList.remove('hidden');
+            document
+                .getElementById("stepAuth")
+                .classList
+                .add("hidden");
+
+
+            document
+                .getElementById("navUserRole")
+                .innerText =
+                    "ስልክ: " +
+                    phone +
+                    " | ድርሻ: " +
+                    (
+                        loggedInRole === "Shipper"
+                            ? "ላኪ"
+                            : "አሽከርካሪ"
+                    );
+
+
+            if (loggedInRole === "Shipper") {
+
+                document
+                    .getElementById("stepShipperDashboard")
+                    .classList
+                    .remove("hidden");
+
             } else {
-                document.getElementById('stepDriverDashboard').classList.remove('hidden');
+
+                document
+                    .getElementById("stepDriverDashboard")
+                    .classList
+                    .remove("hidden");
             }
+
+
+        } catch (err) {
+
+            console.warn(
+                "Backend offline, using mock local storage fallback."
+            );
+
+            handleMockAuth(
+                phone,
+                password,
+                role
+            );
+        }
+    });
+
+
+/* ============================================================
+   MOCK AUTH
+   ============================================================ */
+
+const localUsers = new Map();
+
+
+function handleMockAuth(phone, password, role) {
+
+    const errorMsg =
+        document.getElementById("authErrorMsg");
+
+
+    if (!isLoginMode) {
+
+        if (localUsers.has(phone)) {
+
+            errorMsg.innerText =
+                "ይህ ስልክ ቁጥር ቀደም ሲል ተመዝግቧል፤ እባክዎ በቀጥታ ይግቡ (Log In)";
+
+            errorMsg.classList
+                .remove("hidden");
+
+            return;
         }
 
-        function startShipperVoice() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) { alert("የድምጽ እውቅና በዚህ ብሮውሰር ላይ አይደገፍም።"); return; }
-            const rec = new SpeechRecognition();
-            rec.lang = 'am-ET';
-            rec.onresult = (e) => { document.getElementById('shipperDesc').value = e.results[0][0].transcript; };
-            rec.start();
+
+        localUsers.set(
+            phone,
+            {
+                password,
+                role
+            }
+        );
+
+
+        alert(
+            "ምዝገባው ተሳክቷል! አሁን መግባት ይችላሉ።"
+        );
+
+
+        toggleAuthMode();
+
+    } else {
+
+        if (
+            !localUsers.has(phone) ||
+            localUsers.get(phone).password !== password
+        ) {
+
+            errorMsg.innerText =
+                "የተሳሳተ ስልክ ቁጥር ወይም የይለፍ ቃል!";
+
+            errorMsg.classList
+                .remove("hidden");
+
+            return;
         }
 
-        function startDriverVoice() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) { alert("የድምጽ እውቅና በዚህ ብሮውሰር ላይ አይደገፍም።"); return; }
-            const rec = new SpeechRecognition();
-            rec.lang = 'am-ET';
-            rec.onresult = (e) => { document.getElementById('driverVoiceText').value = e.results[0][0].transcript; };
-            rec.start();
+
+        loggedInRole =
+            localUsers.get(phone).role;
+
+        currentAuthPhone = phone;
+
+
+        document
+            .getElementById("stepAuth")
+            .classList
+            .add("hidden");
+
+
+        document
+            .getElementById("navUserRole")
+            .innerText =
+                "ስልክ: " +
+                phone +
+                " | ድርሻ: " +
+                (
+                    loggedInRole === "Shipper"
+                        ? "ላኪ"
+                        : "አሽከርካሪ"
+                );
+
+
+        if (loggedInRole === "Shipper") {
+
+            document
+                .getElementById("stepShipperDashboard")
+                .classList
+                .remove("hidden");
+
+        } else {
+
+            document
+                .getElementById("stepDriverDashboard")
+                .classList
+                .remove("hidden");
         }
-    </script>
+    }
+}
+
+
+/* ============================================================
+   FORGOT PASSWORD
+   ============================================================ */
+
+async function requestOTP() {
+
+    const phone =
+        document.getElementById("forgotPhone").value;
+
+    const errorMsg =
+        document.getElementById("forgotErrorMsg");
+
+
+    if (!phone) {
+
+        errorMsg.innerText =
+            "እባክዎ ስልክ ቁጥር ያስገቡ!";
+
+        errorMsg.classList
+            .remove("hidden");
+
+        return;
+    }
+
+
+    temporaryResetPhone = phone;
+
+
+    try {
+
+        const res = await fetch(
+            "http://127.0.0.1:8000/api/forgot-password",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    phone
+                })
+            }
+        );
+
+
+        const data =
+            await res.json();
+
+
+        if (!data.success) {
+
+            errorMsg.innerText =
+                data.message;
+
+            errorMsg.classList
+                .remove("hidden");
+
+            return;
+        }
+
+    } catch (e) {
+
+        console.log("Mock OTP sent");
+    }
+
+
+    document
+        .getElementById("forgotStep1")
+        .classList
+        .add("hidden");
+
+    document
+        .getElementById("forgotStep2")
+        .classList
+        .remove("hidden");
+
+    errorMsg.classList
+        .add("hidden");
+
+
+    alert(
+        "የማረጋገጫ ኮድ (OTP) ወደ " +
+        phone +
+        " ተልኳል!"
+    );
+}
+
+
+/* ============================================================
+   RESET PASSWORD
+   ============================================================ */
+
+async function verifyAndResetPassword() {
+
+    const otp =
+        document.getElementById("otpInput").value;
+
+    const newPassword =
+        document.getElementById("newPasswordInput").value;
+
+    const errorMsg =
+        document.getElementById("forgotErrorMsg");
+
+
+    try {
+
+        const res = await fetch(
+            "http://127.0.0.1:8000/api/reset-password",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    phone: temporaryResetPhone,
+                    otp,
+                    newPassword
+                })
+            }
+        );
+
+
+        const data =
+            await res.json();
+
+
+        if (!data.success) {
+
+            errorMsg.innerText =
+                data.message;
+
+            errorMsg.classList
+                .remove("hidden");
+
+            return;
+        }
+
+    } catch (e) {
+
+        if (localUsers.has(temporaryResetPhone)) {
+
+            let user =
+                localUsers.get(temporaryResetPhone);
+
+            user.password =
+                newPassword;
+
+            localUsers.set(
+                temporaryResetPhone,
+                user
+            );
+        }
+    }
+
+
+    alert(
+        "የይለፍ ቃልዎ ተቀይሯል! አሁን በአዲሱ ፓስወርድ መግባት ይችላሉ።"
+    );
+
+
+    backToAuth();
+}
+
+
+/* ============================================================
+   LOGOUT
+   ============================================================ */
+
+function logout() {
+
+    document
+        .getElementById("stepShipperDashboard")
+        .classList
+        .add("hidden");
+
+    document
+        .getElementById("stepDriverDashboard")
+        .classList
+        .add("hidden");
+
+    document
+        .getElementById("stepAuth")
+        .classList
+        .remove("hidden");
+
+    document
+        .getElementById("authForm")
+        .reset();
+}
+
+
+/* ============================================================
+   PAYMENT METHOD
+   ============================================================ */
+
+function selectPaymentMethod(method) {
+
+    selectedGateway = method;
+
+    const btnTelebirr =
+        document.getElementById("btnTelebirr");
+
+    const btnCbe =
+        document.getElementById("btnCbe");
+
+    const senderLabel =
+        document.getElementById("demoAccountLabel");
+
+    const senderInput =
+        document.getElementById("demoAccountOrPhone");
+
+    const receiverLabel =
+        document.getElementById("demoReceiverLabel");
+
+    const receiverInput =
+        document.getElementById("demoReceiverInfo");
+
+
+    if (method === "telebirr") {
+
+        btnTelebirr.className =
+            "p-3 rounded-xl border border-cyan-500 bg-cyan-500/10 text-cyan-600 font-semibold text-xs flex flex-col items-center gap-1 transition";
+
+        btnCbe.className =
+            "p-3 rounded-xl border border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs flex flex-col items-center gap-1 transition";
+
+
+        senderLabel.innerText =
+            "የሰጪው ስልክ ቁጥር (Telebirr Phone)";
+
+        senderInput.placeholder =
+            "09xxxxxxxx";
+
+        senderInput.value = "";
+
+
+        receiverLabel.innerText =
+            "የተቀባይ ስልክ ቁጥር (Telebirr Merchant)";
+
+        receiverInput.value =
+            "0911223344 (Campus Hub Logistics)";
+
+    } else {
+
+        btnCbe.className =
+            "p-3 rounded-xl border border-purple-500 bg-purple-500/10 text-purple-600 font-semibold text-xs flex flex-col items-center gap-1 transition";
+
+        btnTelebirr.className =
+            "p-3 rounded-xl border border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs flex flex-col items-center gap-1 transition";
+
+
+        senderLabel.innerText =
+            "የሰጪው የባንክ አካውንት ቁጥር (CBE Account)";
+
+        senderInput.placeholder =
+            "1000xxxxxxxxxxxxx";
+
+        senderInput.value = "";
+
+
+        receiverLabel.innerText =
+            "የተቀባይ የባንክ አካውንት ቁጥር (CBE Account)";
+
+        receiverInput.value =
+            "1000567891234 (Campus Hub Logistics)";
+    }
+}
+
+
+/* ============================================================
+   SHIPPER FORM
+   ============================================================ */
+
+document
+    .getElementById("shipperForm")
+    .addEventListener("submit", function(e) {
+
+        e.preventDefault();
+
+
+        const origin =
+            document.getElementById("originCity").value;
+
+        const dest =
+            document.getElementById("destCity").value;
+
+
+        const tonnage =
+            parseFloat(
+                document.getElementById("shipperTonnage").value
+            ) || 10;
+
+
+        const dist =
+            parseFloat(
+                document.getElementById("shipperDistance").value
+            );
+
+
+        // Do not use the old 273 KM fallback
+        if (!dist || dist <= 0) {
+
+            alert(
+                "እባክዎ ትክክለኛ የመነሻ እና መድረሻ ከተማ ያስገቡ።"
+            );
+
+            return;
+        }
+
+
+        const amount =
+            dist * 40 * (tonnage / 10);
+
+
+        document
+            .getElementById("paySummaryTitle")
+            .innerText =
+                origin +
+                " -> " +
+                dest +
+                " (" +
+                tonnage +
+                " ቶን, " +
+                dist.toFixed(1) +
+                " ኪ.ሜ)";
+
+
+        document
+            .getElementById("paySummaryAmount")
+            .innerText =
+                amount.toLocaleString() +
+                " ብር";
+
+
+        document
+            .getElementById("stepShipperDashboard")
+            .classList
+            .add("hidden");
+
+        document
+            .getElementById("stepPayment")
+            .classList
+            .remove("hidden");
+    });
+
+
+/* ============================================================
+   DRIVER VOICE DISPATCH
+   ============================================================ */
+
+document
+    .getElementById("driverForm")
+    .addEventListener("submit", async function(e) {
+
+        e.preventDefault();
+
+
+        const voiceText =
+            document.getElementById("driverVoiceText").value;
+
+        const phone =
+            currentAuthPhone || "0911223344";
+
+
+        if (!voiceText) {
+
+            alert(
+                "እባክዎ የድምጽ መልዕክት ይቅረጹ ወይም ይጻፉ!"
+            );
+
+            return;
+        }
+
+
+        try {
+
+            const response = await fetch(
+                "http://127.0.0.1:8000/api/driver-voice-dispatch",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        phone,
+                        voiceText
+                    })
+                }
+            );
+
+
+            const data =
+                await response.json();
+
+
+            if (data.success) {
+
+                document
+                    .getElementById("stepDriverDashboard")
+                    .classList
+                    .add("hidden");
+
+                document
+                    .getElementById("stepSuccess")
+                    .classList
+                    .remove("hidden");
+
+
+                document
+                    .getElementById("successHeading")
+                    .innerText =
+                        "ድምጽዎ ተተንትኖ ሺፐሮች ተደርሰዋል!";
+
+
+                document
+                    .getElementById("successText")
+                    .innerText =
+                        data.message;
+
+                return;
+            }
+
+        } catch (err) {
+
+            console.warn(
+                "Backend offline, using fallback notification simulation."
+            );
+        }
+
+
+        document
+            .getElementById("stepDriverDashboard")
+            .classList
+            .add("hidden");
+
+        document
+            .getElementById("stepSuccess")
+            .classList
+            .remove("hidden");
+
+
+        document
+            .getElementById("successHeading")
+            .innerText =
+                "ጭነቱ እና ቮይስ ማስታወቂያው ተሰራጭቷል!";
+
+
+        document
+            .getElementById("successText")
+            .innerText =
+                "ድምጽዎ ተቀብሎ ለአካባቢው ሺፐሮች አውቶማቲክ ኖቲፊኬሽን ተልኳል!";
+    });
+
+
+/* ============================================================
+   FINISH / RESET
+   ============================================================ */
+
+function finishAndReset() {
+
+    document
+        .getElementById("stepSuccess")
+        .classList
+        .add("hidden");
+
+    document
+        .getElementById("stepOnboarding")
+        .classList
+        .remove("hidden");
+
+    document
+        .getElementById("authForm")
+        .reset();
+}
+
+
+function backToDashboard() {
+
+    document
+        .getElementById("stepPayment")
+        .classList
+        .add("hidden");
+
+
+    if (loggedInRole === "Shipper") {
+
+        document
+            .getElementById("stepShipperDashboard")
+            .classList
+            .remove("hidden");
+
+    } else {
+
+        document
+            .getElementById("stepDriverDashboard")
+            .classList
+            .remove("hidden");
+    }
+}
+
+
+/* ============================================================
+   SHIPPER VOICE
+   ============================================================ */
+
+function startShipperVoice() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+    if (!SpeechRecognition) {
+
+        alert(
+            "የድምጽ እውቅና በዚህ ብሮውዘር ላይ አይደገፍም"
+        );
+
+        return;
+    }
+
+
+    const rec =
+        new SpeechRecognition();
+
+
+    rec.lang = "am-ET";
+
+
+    rec.onresult = (e) => {
+
+        document
+            .getElementById("shipperDesc")
+            .value =
+                e.results[0][0].transcript;
+    };
+
+
+    rec.start();
+}
+
+
+/* ============================================================
+   DRIVER VOICE
+   ============================================================ */
+
+function startDriverVoice() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+    if (!SpeechRecognition) {
+
+        alert(
+            "የድምጽ እውቅና በዚህ ብሮውዘር ላይ አይደገፍም"
+        );
+
+        return;
+    }
+
+
+    const rec =
+        new SpeechRecognition();
+
+
+    rec.lang = "am-ET";
+
+
+    rec.onresult = (e) => {
+
+        document
+            .getElementById("driverVoiceText")
+            .value =
+                e.results[0][0].transcript;
+    };
+
+
+    rec.start();
+
+}
+</script>
 </body>
 </html>
