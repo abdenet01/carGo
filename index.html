@@ -271,12 +271,14 @@ const ethiopianCities = {
    HAVERSINE FORMULA
    ============================================================ */
 
+/* ============================================================
+   HAVERSINE FORMULA (GPS DISTANCE CALCULATION)
+   ============================================================ */
+
 function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
     const EARTH_RADIUS_KM = 6371;
 
-    const toRadians = degrees => {
-        return degrees * Math.PI / 180;
-    };
+    const toRadians = degrees => degrees * Math.PI / 180;
 
     const dLat = toRadians(lat2 - lat1);
     const dLon = toRadians(lon2 - lon1);
@@ -290,37 +292,25 @@ function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
         Math.cos(lat2Rad) *
         Math.sin(dLon / 2) ** 2;
 
-    const c =
-        2 * Math.atan2(
-            Math.sqrt(a),
-            Math.sqrt(1 - a)
-        );
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return EARTH_RADIUS_KM * c;
 }
 
 
 /* ============================================================
-   FIND ETHIOPIAN CITY
+   FIND ETHIOPIAN CITY (Flexible Matching)
    ============================================================ */
 
 function findEthiopianCity(input) {
-    if (!input) {
-        return null;
-    }
-
+    if (!input) return null;
     const value = input.trim().toLowerCase();
 
     for (const city of Object.keys(ethiopianCities)) {
-        if (city.toLowerCase() === value) {
-            return city;
-        }
-
-        if (value.includes(city.toLowerCase())) {
+        if (city.toLowerCase() === value || value.includes(city.toLowerCase())) {
             return city;
         }
     }
-
     return null;
 }
 
@@ -334,10 +324,7 @@ function calculateDistanceFromGPS() {
     const destinationElement = document.getElementById("destCity");
     const distanceElement = document.getElementById("shipperDistance");
 
-    if (!originElement || !destinationElement || !distanceElement) {
-        console.error("GPS distance elements not found.");
-        return;
-    }
+    if (!originElement || !destinationElement || !distanceElement) return;
 
     const originInput = originElement.value.trim();
     const destinationInput = destinationElement.value.trim();
@@ -350,15 +337,8 @@ function calculateDistanceFromGPS() {
     const originCity = findEthiopianCity(originInput);
     const destinationCity = findEthiopianCity(destinationInput);
 
-    if (!originCity) {
-        distanceElement.value = "";
-        console.warn("Origin city not found:", originInput);
-        return;
-    }
-
-    if (!destinationCity) {
-        distanceElement.value = "";
-        console.warn("Destination city not found:", destinationInput);
+    if (!originCity || !destinationCity) {
+        // ከተማው እስካሁን ካልተገኘ ሳጥኑን ባዶ እናደርገዋለን (Error እንዳይፈጥር)
         return;
     }
 
@@ -377,25 +357,70 @@ function calculateDistanceFromGPS() {
         destination.lon
     );
 
+    // type="number" ስለሆነ ኢንፑቱ ላይ ቁጥሩን በቁጥር መልክ እንጽፋለን
     distanceElement.value = distance.toFixed(1);
-
-    console.log(`GPS Distance: ${originCity} → ${destinationCity} = ${distance.toFixed(1)} km`);
 }
 
 
 /* ============================================================
-   AI PREDICTION MODEL (Distance + Cargo Weight Factors)
+   AI PREDICTION MODEL (Distance + Tonnage Factors)
    ============================================================ */
 
-function predictFreightPrice(distanceKm, tonnage = 10) {
-    const baseFare = 200; // Base dispatch fee in ETB
-    const ratePerKm = 35;  // Dynamic distance coefficient
-    const ratePerTon = 150; // Payload scale factor
+function predictFreightPrice(distanceKm, tonnage = 30) {
+    const baseFare = 500;   // መነሻ ክፍያ
+    const ratePerKm = 40;   // በኪ.ሜ የሚሰላ ተመን
+    const ratePerTon = 200; // በቶን የሚሰላ ተመን
 
     let predictedAmount = baseFare + (distanceKm * ratePerKm) + (tonnage * ratePerTon);
     return Math.round(predictedAmount);
 }
 
+
+/* ============================================================
+   SHIPPER FORM SUBMISSION & PAYMENT REDIRECT
+   ============================================================ */
+
+const activeShipperForm = document.getElementById("shipperForm");
+if (activeShipperForm) {
+    activeShipperForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const origin = document.getElementById("originCity").value;
+        const dest = document.getElementById("destCity").value;
+        const tonnage = parseFloat(document.getElementById("shipperTonnage").value) || 30;
+
+        // ከመላኩ በፊት ርቀቱን አንዴ በድጋሚ እናሰላለን
+        calculateDistanceFromGPS();
+
+        const dist = parseFloat(document.getElementById("shipperDistance").value);
+
+        if (!dist || isNaN(dist) || dist <= 0) {
+            alert("እባክዎ ትክክለኛ የመነሻ እና መድረሻ የኢትዮጵያ ከተማ ስም ይጻፉ (ለምሳሌ፦ አዲስ አበባ እና ሀዋሳ)");
+            return;
+        }
+
+        // የዋጋ ትንበያውን (AI Prediction) ማስላት
+        const predictedAmount = predictFreightPrice(dist, tonnage);
+
+        // የክፍያ ማጠቃለያ ገጽ ላይ መረጃዎቹን መጫን
+        const payTitle = document.getElementById("paySummaryTitle");
+        const payAmount = document.getElementById("paySummaryAmount");
+
+        if (payTitle) {
+            payTitle.innerText = `${origin} -> ${dest} (${tonnage} ቶን, ${dist.toFixed(1)} ኪ.ሜ)`;
+        }
+        if (payAmount) {
+            payAmount.innerText = `${predictedAmount.toLocaleString()} ብር`;
+        }
+
+        // የሺፐር ዴሽቦርድን ደብቆ የክፍያ ገጹን ማሳየት
+        const shipperDash = document.getElementById("stepShipperDashboard");
+        const paymentStep = document.getElementById("stepPayment");
+
+        if (shipperDash) shipperDash.classList.add("hidden");
+        if (paymentStep) paymentStep.classList.remove("hidden");
+    });
+}
 
 /* ============================================================
    THEME TOGGLE
