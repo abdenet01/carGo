@@ -272,7 +272,6 @@ const ethiopianCities = {
    ============================================================ */
 
 function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
-
     const EARTH_RADIUS_KM = 6371;
 
     const toRadians = degrees => {
@@ -306,7 +305,6 @@ function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
    ============================================================ */
 
 function findEthiopianCity(input) {
-
     if (!input) {
         return null;
     }
@@ -314,7 +312,6 @@ function findEthiopianCity(input) {
     const value = input.trim().toLowerCase();
 
     for (const city of Object.keys(ethiopianCities)) {
-
         if (city.toLowerCase() === value) {
             return city;
         }
@@ -333,147 +330,89 @@ function findEthiopianCity(input) {
    ============================================================ */
 
 function calculateDistanceFromGPS() {
+    const originElement = document.getElementById("originCity");
+    const destinationElement = document.getElementById("destCity");
+    const distanceElement = document.getElementById("shipperDistance");
 
-    const originElement =
-        document.getElementById("originCity");
-
-    const destinationElement =
-        document.getElementById("destCity");
-
-    const distanceElement =
-        document.getElementById("shipperDistance");
-
-
-    if (
-        !originElement ||
-        !destinationElement ||
-        !distanceElement
-    ) {
+    if (!originElement || !destinationElement || !distanceElement) {
         console.error("GPS distance elements not found.");
         return;
     }
 
+    const originInput = originElement.value.trim();
+    const destinationInput = destinationElement.value.trim();
 
-    const originInput =
-        originElement.value.trim();
-
-    const destinationInput =
-        destinationElement.value.trim();
-
-
-    // Wait until both cities are entered
     if (!originInput || !destinationInput) {
-
         distanceElement.value = "";
-
         return;
     }
 
+    const originCity = findEthiopianCity(originInput);
+    const destinationCity = findEthiopianCity(destinationInput);
 
-    // Find the cities
-    const originCity =
-        findEthiopianCity(originInput);
-
-    const destinationCity =
-        findEthiopianCity(destinationInput);
-
-
-    // Invalid origin
     if (!originCity) {
-
         distanceElement.value = "";
-
-        console.warn(
-            "Origin city not found:",
-            originInput
-        );
-
+        console.warn("Origin city not found:", originInput);
         return;
     }
 
-
-    // Invalid destination
     if (!destinationCity) {
-
         distanceElement.value = "";
-
-        console.warn(
-            "Destination city not found:",
-            destinationInput
-        );
-
+        console.warn("Destination city not found:", destinationInput);
         return;
     }
 
-
-    // Same city
     if (originCity === destinationCity) {
-
         distanceElement.value = "0";
-
         return;
     }
 
+    const origin = ethiopianCities[originCity];
+    const destination = ethiopianCities[destinationCity];
 
-    // Get coordinates
-    const origin =
-        ethiopianCities[originCity];
-
-    const destination =
-        ethiopianCities[destinationCity];
-
-
-    // Haversine GPS calculation
-    const distance =
-        calculateHaversineDistance(
-            origin.lat,
-            origin.lon,
-            destination.lat,
-            destination.lon
-        );
-
-
-    // Display distance in KM
-    distanceElement.value =
-        distance.toFixed(1);
-
-
-    console.log(
-        `GPS Distance: ${originCity} → ${destinationCity} = ${distance.toFixed(1)} km`
+    const distance = calculateHaversineDistance(
+        origin.lat,
+        origin.lon,
+        destination.lat,
+        destination.lon
     );
+
+    distanceElement.value = distance.toFixed(1);
+
+    console.log(`GPS Distance: ${originCity} → ${destinationCity} = ${distance.toFixed(1)} km`);
 }
 
 
 /* ============================================================
-   THEME
+   AI PREDICTION MODEL (Distance + Cargo Weight Factors)
+   ============================================================ */
+
+function predictFreightPrice(distanceKm, tonnage = 10) {
+    const baseFare = 200; // Base dispatch fee in ETB
+    const ratePerKm = 35;  // Dynamic distance coefficient
+    const ratePerTon = 150; // Payload scale factor
+
+    let predictedAmount = baseFare + (distanceKm * ratePerKm) + (tonnage * ratePerTon);
+    return Math.round(predictedAmount);
+}
+
+
+/* ============================================================
+   THEME TOGGLE
    ============================================================ */
 
 function toggleTheme() {
-
-    const htmlRoot =
-        document.getElementById("htmlRoot");
-
-    const themeIcon =
-        document.getElementById("themeIcon");
-
-    const themeText =
-        document.getElementById("themeText");
-
+    const htmlRoot = document.getElementById("htmlRoot");
+    const themeIcon = document.getElementById("themeIcon");
+    const themeText = document.getElementById("themeText");
 
     if (htmlRoot.classList.contains("dark")) {
-
         htmlRoot.classList.remove("dark");
-
         themeIcon.innerText = "🌙";
-
         themeText.innerText = "Dark";
-
     } else {
-
         htmlRoot.classList.add("dark");
-
         themeIcon.innerText = "☀️";
-
         themeText.innerText = "Light";
     }
 }
@@ -491,93 +430,38 @@ let currentAuthPhone = "";
    ============================================================ */
 
 function goToAuthFromOnboarding() {
-
-    document
-        .getElementById("stepOnboarding")
-        .classList.add("hidden");
-
-    document
-        .getElementById("stepAuth")
-        .classList.remove("hidden");
+    document.getElementById("stepOnboarding").classList.add("hidden");
+    document.getElementById("stepAuth").classList.remove("hidden");
 }
 
-
 function toggleAuthMode() {
-
     isLoginMode = !isLoginMode;
 
     document.getElementById("authTitle").innerText =
-        isLoginMode
-            ? "እንኳን ደህና መጡ - ግባ (Login)"
-            : "ምዝገባ (Register)";
+        isLoginMode ? "እንኳን ደህና መጡ - ግባ (Login)" : "ምዝገባ (Register)";
 
     document.getElementById("authSubmitBtn").innerText =
-        isLoginMode
-            ? "ግባ (Login)"
-            : "ምዝገባ (Register)";
+        isLoginMode ? "ግባ (Login)" : "ምዝገባ (Register)";
 
     document.getElementById("authSwitchText").innerText =
-        isLoginMode
-            ? "አካውንት የለዎትም? ይመዝገቡ"
-            : "አካውንት አለዎት? ግባ (Login)";
+        isLoginMode ? "አካውንት የለዎትም? ይመዝገቡ" : "አካውንት አለዎት? ግባ (Login)";
 
-    document
-        .getElementById("roleSelectionDiv")
-        .classList
-        .toggle("hidden", isLoginMode);
-
-    document
-        .getElementById("forgotPasswordLink")
-        .classList
-        .toggle("hidden", !isLoginMode);
-
-    document
-        .getElementById("authErrorMsg")
-        .classList
-        .add("hidden");
+    document.getElementById("roleSelectionDiv").classList.toggle("hidden", isLoginMode);
+    document.getElementById("forgotPasswordLink").classList.toggle("hidden", !isLoginMode);
+    document.getElementById("authErrorMsg").classList.add("hidden");
 }
-
 
 function showForgotPassword() {
-
-    document
-        .getElementById("stepAuth")
-        .classList
-        .add("hidden");
-
-    document
-        .getElementById("stepForgot")
-        .classList
-        .remove("hidden");
-
-    document
-        .getElementById("forgotStep1")
-        .classList
-        .remove("hidden");
-
-    document
-        .getElementById("forgotStep2")
-        .classList
-        .add("hidden");
-
-    document
-        .getElementById("forgotErrorMsg")
-        .classList
-        .add("hidden");
+    document.getElementById("stepAuth").classList.add("hidden");
+    document.getElementById("stepForgot").classList.remove("hidden");
+    document.getElementById("forgotStep1").classList.remove("hidden");
+    document.getElementById("forgotStep2").classList.add("hidden");
+    document.getElementById("forgotErrorMsg").classList.add("hidden");
 }
 
-
 function backToAuth() {
-
-    document
-        .getElementById("stepForgot")
-        .classList
-        .add("hidden");
-
-    document
-        .getElementById("stepAuth")
-        .classList
-        .remove("hidden");
+    document.getElementById("stepForgot").classList.add("hidden");
+    document.getElementById("stepAuth").classList.remove("hidden");
 }
 
 
@@ -585,120 +469,48 @@ function backToAuth() {
    BACKEND AUTHENTICATION
    ============================================================ */
 
-document
-    .getElementById("authForm")
-    .addEventListener("submit", async function(e) {
+document.getElementById("authForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
 
-        e.preventDefault();
+    const phone = document.getElementById("authPhone").value;
+    const password = document.getElementById("authPassword").value;
+    const role = document.getElementById("authRole").value;
+    const errorMsg = document.getElementById("authErrorMsg");
 
-        const phone =
-            document.getElementById("authPhone").value;
+    currentAuthPhone = phone;
+    const endpoint = isLoginMode ? "http://127.0.0.1:8000/api/login" : "http://127.0.0.1:8000/api/register";
 
-        const password =
-            document.getElementById("authPassword").value;
+    try {
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone, password, role })
+        });
 
-        const role =
-            document.getElementById("authRole").value;
+        const data = await response.json();
 
-        const errorMsg =
-            document.getElementById("authErrorMsg");
-
-        currentAuthPhone = phone;
-
-
-        const endpoint = isLoginMode
-            ? "http://127.0.0.1:8000/api/login"
-            : "http://127.0.0.1:8000/api/register";
-
-
-        try {
-
-            const response = await fetch(endpoint, {
-
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    phone,
-                    password,
-                    role
-                })
-            });
-
-
-            const data =
-                await response.json();
-
-
-            if (!data.success) {
-
-                errorMsg.innerText =
-                    data.message;
-
-                errorMsg.classList
-                    .remove("hidden");
-
-                return;
-            }
-
-
-            loggedInRole =
-                isLoginMode
-                    ? data.role
-                    : role;
-
-
-            document
-                .getElementById("stepAuth")
-                .classList
-                .add("hidden");
-
-
-            document
-                .getElementById("navUserRole")
-                .innerText =
-                    "ስልክ: " +
-                    phone +
-                    " | ድርሻ: " +
-                    (
-                        loggedInRole === "Shipper"
-                            ? "ላኪ"
-                            : "አሽከርካሪ"
-                    );
-
-
-            if (loggedInRole === "Shipper") {
-
-                document
-                    .getElementById("stepShipperDashboard")
-                    .classList
-                    .remove("hidden");
-
-            } else {
-
-                document
-                    .getElementById("stepDriverDashboard")
-                    .classList
-                    .remove("hidden");
-            }
-
-
-        } catch (err) {
-
-            console.warn(
-                "Backend offline, using mock local storage fallback."
-            );
-
-            handleMockAuth(
-                phone,
-                password,
-                role
-            );
+        if (!data.success) {
+            errorMsg.innerText = data.message;
+            errorMsg.classList.remove("hidden");
+            return;
         }
-    });
+
+        loggedInRole = isLoginMode ? data.role : role;
+
+        document.getElementById("stepAuth").classList.add("hidden");
+        document.getElementById("navUserRole").innerText = "ስልክ: " + phone + " | ድርሻ: " + (loggedInRole === "Shipper" ? "ላኪ" : "አሽከርካሪ");
+
+        if (loggedInRole === "Shipper") {
+            document.getElementById("stepShipperDashboard").classList.remove("hidden");
+        } else {
+            document.getElementById("stepDriverDashboard").classList.remove("hidden");
+        }
+
+    } catch (err) {
+        console.warn("Backend offline, using mock local storage fallback.");
+        handleMockAuth(phone, password, role);
+    }
+});
 
 
 /* ============================================================
@@ -707,266 +519,94 @@ document
 
 const localUsers = new Map();
 
-
 function handleMockAuth(phone, password, role) {
-
-    const errorMsg =
-        document.getElementById("authErrorMsg");
-
+    const errorMsg = document.getElementById("authErrorMsg");
 
     if (!isLoginMode) {
-
         if (localUsers.has(phone)) {
-
-            errorMsg.innerText =
-                "ይህ ስልክ ቁጥር ቀደም ሲል ተመዝግቧል፤ እባክዎ በቀጥታ ይግቡ (Log In)";
-
-            errorMsg.classList
-                .remove("hidden");
-
+            errorMsg.innerText = "ይህ ስልክ ቁጥር ቀደም ሲል ተመዝግቧል፤ እባክዎ በቀጥታ ይግቡ (Log In)";
+            errorMsg.classList.remove("hidden");
             return;
         }
 
-
-        localUsers.set(
-            phone,
-            {
-                password,
-                role
-            }
-        );
-
-
-        alert(
-            "ምዝገባው ተሳክቷል! አሁን መግባት ይችላሉ።"
-        );
-
-
+        localUsers.set(phone, { password, role });
+        alert("ምዝገባው ተሳክቷል! አሁን መግባት ይችላሉ።");
         toggleAuthMode();
-
     } else {
-
-        if (
-            !localUsers.has(phone) ||
-            localUsers.get(phone).password !== password
-        ) {
-
-            errorMsg.innerText =
-                "የተሳሳተ ስልክ ቁጥር ወይም የይለፍ ቃል!";
-
-            errorMsg.classList
-                .remove("hidden");
-
+        if (!localUsers.has(phone) || localUsers.get(phone).password !== password) {
+            errorMsg.innerText = "የተሳሳተ ስልክ ቁጥር ወይም የይለፍ ቃል!";
+            errorMsg.classList.remove("hidden");
             return;
         }
 
-
-        loggedInRole =
-            localUsers.get(phone).role;
-
+        loggedInRole = localUsers.get(phone).role;
         currentAuthPhone = phone;
 
-
-        document
-            .getElementById("stepAuth")
-            .classList
-            .add("hidden");
-
-
-        document
-            .getElementById("navUserRole")
-            .innerText =
-                "ስልክ: " +
-                phone +
-                " | ድርሻ: " +
-                (
-                    loggedInRole === "Shipper"
-                        ? "ላኪ"
-                        : "አሽከርካሪ"
-                );
-
+        document.getElementById("stepAuth").classList.add("hidden");
+        document.getElementById("navUserRole").innerText = "ስልክ: " + phone + " | ድርሻ: " + (loggedInRole === "Shipper" ? "ላኪ" : "አሽከርካሪ");
 
         if (loggedInRole === "Shipper") {
-
-            document
-                .getElementById("stepShipperDashboard")
-                .classList
-                .remove("hidden");
-
+            document.getElementById("stepShipperDashboard").classList.remove("hidden");
         } else {
-
-            document
-                .getElementById("stepDriverDashboard")
-                .classList
-                .remove("hidden");
+            document.getElementById("stepDriverDashboard").classList.remove("hidden");
         }
     }
 }
 
 
 /* ============================================================
-   FORGOT PASSWORD
+   FORGOT & RESET PASSWORD
    ============================================================ */
 
 async function requestOTP() {
-
-    const phone =
-        document.getElementById("forgotPhone").value;
-
-    const errorMsg =
-        document.getElementById("forgotErrorMsg");
-
+    const phone = document.getElementById("forgotPhone").value;
+    const errorMsg = document.getElementById("forgotErrorMsg");
 
     if (!phone) {
-
-        errorMsg.innerText =
-            "እባክዎ ስልክ ቁጥር ያስገቡ!";
-
-        errorMsg.classList
-            .remove("hidden");
-
+        errorMsg.innerText = "እባክዎ ስልክ ቁጥር ያስገቡ!";
+        errorMsg.classList.remove("hidden");
         return;
     }
 
-
     temporaryResetPhone = phone;
 
-
     try {
-
-        const res = await fetch(
-            "http://127.0.0.1:8000/api/forgot-password",
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    phone
-                })
-            }
-        );
-
-
-        const data =
-            await res.json();
-
-
-        if (!data.success) {
-
-            errorMsg.innerText =
-                data.message;
-
-            errorMsg.classList
-                .remove("hidden");
-
-            return;
-        }
-
+        await fetch("http://127.0.0.1:8000/api/forgot-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone })
+        });
     } catch (e) {
-
         console.log("Mock OTP sent");
     }
 
+    document.getElementById("forgotStep1").classList.add("hidden");
+    document.getElementById("forgotStep2").classList.remove("hidden");
+    errorMsg.classList.add("hidden");
 
-    document
-        .getElementById("forgotStep1")
-        .classList
-        .add("hidden");
-
-    document
-        .getElementById("forgotStep2")
-        .classList
-        .remove("hidden");
-
-    errorMsg.classList
-        .add("hidden");
-
-
-    alert(
-        "የማረጋገጫ ኮድ (OTP) ወደ " +
-        phone +
-        " ተልኳል!"
-    );
+    alert("የማረጋገጫ ኮድ (OTP) ወደ " + phone + " ተልኳል!");
 }
 
-
-/* ============================================================
-   RESET PASSWORD
-   ============================================================ */
-
 async function verifyAndResetPassword() {
-
-    const otp =
-        document.getElementById("otpInput").value;
-
-    const newPassword =
-        document.getElementById("newPasswordInput").value;
-
-    const errorMsg =
-        document.getElementById("forgotErrorMsg");
-
+    const otp = document.getElementById("otpInput").value;
+    const newPassword = document.getElementById("newPasswordInput").value;
+    const errorMsg = document.getElementById("forgotErrorMsg");
 
     try {
-
-        const res = await fetch(
-            "http://127.0.0.1:8000/api/reset-password",
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    phone: temporaryResetPhone,
-                    otp,
-                    newPassword
-                })
-            }
-        );
-
-
-        const data =
-            await res.json();
-
-
-        if (!data.success) {
-
-            errorMsg.innerText =
-                data.message;
-
-            errorMsg.classList
-                .remove("hidden");
-
-            return;
-        }
-
+        await fetch("http://127.0.0.1:8000/api/reset-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone: temporaryResetPhone, otp, newPassword })
+        });
     } catch (e) {
-
         if (localUsers.has(temporaryResetPhone)) {
-
-            let user =
-                localUsers.get(temporaryResetPhone);
-
-            user.password =
-                newPassword;
-
-            localUsers.set(
-                temporaryResetPhone,
-                user
-            );
+            let user = localUsers.get(temporaryResetPhone);
+            user.password = newPassword;
+            localUsers.set(temporaryResetPhone, user);
         }
     }
 
-
-    alert(
-        "የይለፍ ቃልዎ ተቀይሯል! አሁን በአዲሱ ፓስወርድ መግባት ይችላሉ።"
-    );
-
-
+    alert("የይለፍ ቃልዎ ተቀይሯል! አሁን በአዲሱ ፓስወርድ መግባት ይችላሉ።");
     backToAuth();
 }
 
@@ -976,25 +616,10 @@ async function verifyAndResetPassword() {
    ============================================================ */
 
 function logout() {
-
-    document
-        .getElementById("stepShipperDashboard")
-        .classList
-        .add("hidden");
-
-    document
-        .getElementById("stepDriverDashboard")
-        .classList
-        .add("hidden");
-
-    document
-        .getElementById("stepAuth")
-        .classList
-        .remove("hidden");
-
-    document
-        .getElementById("authForm")
-        .reset();
+    document.getElementById("stepShipperDashboard").classList.add("hidden");
+    document.getElementById("stepDriverDashboard").classList.add("hidden");
+    document.getElementById("stepAuth").classList.remove("hidden");
+    document.getElementById("authForm").reset();
 }
 
 
@@ -1003,393 +628,112 @@ function logout() {
    ============================================================ */
 
 function selectPaymentMethod(method) {
-
     selectedGateway = method;
 
-    const btnTelebirr =
-        document.getElementById("btnTelebirr");
-
-    const btnCbe =
-        document.getElementById("btnCbe");
-
-    const senderLabel =
-        document.getElementById("demoAccountLabel");
-
-    const senderInput =
-        document.getElementById("demoAccountOrPhone");
-
-    const receiverLabel =
-        document.getElementById("demoReceiverLabel");
-
-    const receiverInput =
-        document.getElementById("demoReceiverInfo");
-
+    const btnTelebirr = document.getElementById("btnTelebirr");
+    const btnCbe = document.getElementById("btnCbe");
+    const senderLabel = document.getElementById("demoAccountLabel");
+    const senderInput = document.getElementById("demoAccountOrPhone");
+    const receiverLabel = document.getElementById("demoReceiverLabel");
+    const receiverInput = document.getElementById("demoReceiverInfo");
 
     if (method === "telebirr") {
+        btnTelebirr.className = "p-3 rounded-xl border border-cyan-500 bg-cyan-500/10 text-cyan-600 font-semibold text-xs flex flex-col items-center gap-1 transition";
+        btnCbe.className = "p-3 rounded-xl border border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs flex flex-col items-center gap-1 transition";
 
-        btnTelebirr.className =
-            "p-3 rounded-xl border border-cyan-500 bg-cyan-500/10 text-cyan-600 font-semibold text-xs flex flex-col items-center gap-1 transition";
-
-        btnCbe.className =
-            "p-3 rounded-xl border border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs flex flex-col items-center gap-1 transition";
-
-
-        senderLabel.innerText =
-            "የሰጪው ስልክ ቁጥር (Telebirr Phone)";
-
-        senderInput.placeholder =
-            "09xxxxxxxx";
-
+        senderLabel.innerText = "የሰጪው ስልክ ቁጥር (Telebirr Phone)";
+        senderInput.placeholder = "09xxxxxxxx";
         senderInput.value = "";
 
-
-        receiverLabel.innerText =
-            "የተቀባይ ስልክ ቁጥር (Telebirr Merchant)";
-
-        receiverInput.value =
-            "0911223344 (Campus Hub Logistics)";
-
+        receiverLabel.innerText = "የተቀባይ ስልክ ቁጥር (Telebirr Merchant)";
+        receiverInput.value = "0911223344 (Campus Hub Logistics)";
     } else {
+        btnCbe.className = "p-3 rounded-xl border border-purple-500 bg-purple-500/10 text-purple-600 font-semibold text-xs flex flex-col items-center gap-1 transition";
+        btnTelebirr.className = "p-3 rounded-xl border border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs flex flex-col items-center gap-1 transition";
 
-        btnCbe.className =
-            "p-3 rounded-xl border border-purple-500 bg-purple-500/10 text-purple-600 font-semibold text-xs flex flex-col items-center gap-1 transition";
-
-        btnTelebirr.className =
-            "p-3 rounded-xl border border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-semibold text-xs flex flex-col items-center gap-1 transition";
-
-
-        senderLabel.innerText =
-            "የሰጪው የባንክ አካውንት ቁጥር (CBE Account)";
-
-        senderInput.placeholder =
-            "1000xxxxxxxxxxxxx";
-
+        senderLabel.innerText = "የሰጪው የባንክ አካውንት ቁጥር (CBE Account)";
+        senderInput.placeholder = "1000xxxxxxxxxxxxx";
         senderInput.value = "";
 
-
-        receiverLabel.innerText =
-            "የተቀባይ የባንክ አካውንት ቁጥር (CBE Account)";
-
-        receiverInput.value =
-            "1000567891234 (Campus Hub Logistics)";
+        receiverLabel.innerText = "የተቀባይ የባንክ አካውንት ቁጥር (CBE Account)";
+        receiverInput.value = "1000567891234 (Campus Hub Logistics)";
     }
 }
 
 
 /* ============================================================
-   SHIPPER FORM
+   SHIPPER FORM (GPS Calculation + AI Price Prediction Integration)
    ============================================================ */
 
-document
-    .getElementById("shipperForm")
-    .addEventListener("submit", function(e) {
+document.getElementById("shipperForm").addEventListener("submit", function(e) {
+    e.preventDefault();
 
-        e.preventDefault();
+    const origin = document.getElementById("originCity").value;
+    const dest = document.getElementById("destCity").value;
+    const tonnage = parseFloat(document.getElementById("shipperTonnage").value) || 10;
 
+    // Automatically trigger GPS calculation if distance field is empty or out-of-date
+    calculateDistanceFromGPS();
 
-        const origin =
-            document.getElementById("originCity").value;
+    const dist = parseFloat(document.getElementById("shipperDistance").value);
 
-        const dest =
-            document.getElementById("destCity").value;
-
-
-        const tonnage =
-            parseFloat(
-                document.getElementById("shipperTonnage").value
-            ) || 10;
-
-
-        const dist =
-            parseFloat(
-                document.getElementById("shipperDistance").value
-            );
-
-
-        // Do not use the old 273 KM fallback
-        if (!dist || dist <= 0) {
-
-            alert(
-                "እባክዎ ትክክለኛ የመነሻ እና መድረሻ ከተማ ያስገቡ።"
-            );
-
-            return;
-        }
-
-
-        const amount =
-            dist * 40 * (tonnage / 10);
-
-
-        document
-            .getElementById("paySummaryTitle")
-            .innerText =
-                origin +
-                " -> " +
-                dest +
-                " (" +
-                tonnage +
-                " ቶን, " +
-                dist.toFixed(1) +
-                " ኪ.ሜ)";
-
-
-        document
-            .getElementById("paySummaryAmount")
-            .innerText =
-                amount.toLocaleString() +
-                " ብር";
-
-
-        document
-            .getElementById("stepShipperDashboard")
-            .classList
-            .add("hidden");
-
-        document
-            .getElementById("stepPayment")
-            .classList
-            .remove("hidden");
-    });
-
-
-/* ============================================================
-   DRIVER VOICE DISPATCH
-   ============================================================ */
-
-document
-    .getElementById("driverForm")
-    .addEventListener("submit", async function(e) {
-
-        e.preventDefault();
-
-
-        const voiceText =
-            document.getElementById("driverVoiceText").value;
-
-        const phone =
-            currentAuthPhone || "0911223344";
-
-
-        if (!voiceText) {
-
-            alert(
-                "እባክዎ የድምጽ መልዕክት ይቅረጹ ወይም ይጻፉ!"
-            );
-
-            return;
-        }
-
-
-        try {
-
-            const response = await fetch(
-                "http://127.0.0.1:8000/api/driver-voice-dispatch",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        phone,
-                        voiceText
-                    })
-                }
-            );
-
-
-            const data =
-                await response.json();
-
-
-            if (data.success) {
-
-                document
-                    .getElementById("stepDriverDashboard")
-                    .classList
-                    .add("hidden");
-
-                document
-                    .getElementById("stepSuccess")
-                    .classList
-                    .remove("hidden");
-
-
-                document
-                    .getElementById("successHeading")
-                    .innerText =
-                        "ድምጽዎ ተተንትኖ ሺፐሮች ተደርሰዋል!";
-
-
-                document
-                    .getElementById("successText")
-                    .innerText =
-                        data.message;
-
-                return;
-            }
-
-        } catch (err) {
-
-            console.warn(
-                "Backend offline, using fallback notification simulation."
-            );
-        }
-
-
-        document
-            .getElementById("stepDriverDashboard")
-            .classList
-            .add("hidden");
-
-        document
-            .getElementById("stepSuccess")
-            .classList
-            .remove("hidden");
-
-
-        document
-            .getElementById("successHeading")
-            .innerText =
-                "ጭነቱ እና ቮይስ ማስታወቂያው ተሰራጭቷል!";
-
-
-        document
-            .getElementById("successText")
-            .innerText =
-                "ድምጽዎ ተቀብሎ ለአካባቢው ሺፐሮች አውቶማቲክ ኖቲፊኬሽን ተልኳል!";
-    });
-
-
-/* ============================================================
-   FINISH / RESET
-   ============================================================ */
-
-function finishAndReset() {
-
-    document
-        .getElementById("stepSuccess")
-        .classList
-        .add("hidden");
-
-    document
-        .getElementById("stepOnboarding")
-        .classList
-        .remove("hidden");
-
-    document
-        .getElementById("authForm")
-        .reset();
-}
-
-
-function backToDashboard() {
-
-    document
-        .getElementById("stepPayment")
-        .classList
-        .add("hidden");
-
-
-    if (loggedInRole === "Shipper") {
-
-        document
-            .getElementById("stepShipperDashboard")
-            .classList
-            .remove("hidden");
-
-    } else {
-
-        document
-            .getElementById("stepDriverDashboard")
-            .classList
-            .remove("hidden");
+    if (!dist || dist <= 0) {
+        alert("እባክዎ ትክክለኛ የመነሻ እና መድረሻ ከተማ ያስገቡ።");
+        return;
     }
-}
+
+    // AI Prediction Model Execution based on distance and cargo tonnage parameters
+    const predictedAmount = predictFreightPrice(dist, tonnage);
+
+    document.getElementById("paySummaryTitle").innerText =
+        origin + " -> " + dest + " (" + tonnage + " ቶን, " + dist.toFixed(1) + " ኪ.ሜ)";
+
+    document.getElementById("paySummaryAmount").innerText =
+        predictedAmount.toLocaleString() + " ብር";
+
+    document.getElementById("stepShipperDashboard").classList.add("hidden");
+    document.getElementById("stepPayment").classList.remove("hidden");
+});
 
 
 /* ============================================================
-   SHIPPER VOICE
+   VOICE RECOGNITION (Shipper & Driver)
    ============================================================ */
 
 function startShipperVoice() {
-
-    const SpeechRecognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
-
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-
-        alert(
-            "የድምጽ እውቅና በዚህ ብሮውዘር ላይ አይደገፍም"
-        );
-
+        alert("የድምጽ እውቅና በዚህ ብሮውዘር ላይ አይደገፍም");
         return;
     }
 
-
-    const rec =
-        new SpeechRecognition();
-
-
+    const rec = new SpeechRecognition();
     rec.lang = "am-ET";
 
-
     rec.onresult = (e) => {
-
-        document
-            .getElementById("shipperDesc")
-            .value =
-                e.results[0][0].transcript;
+        document.getElementById("shipperDesc").value = e.results[0][0].transcript;
     };
-
 
     rec.start();
 }
 
-
-/* ============================================================
-   DRIVER VOICE
-   ============================================================ */
-
 function startDriverVoice() {
-
-    const SpeechRecognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
-
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-
-        alert(
-            "የድምጽ እውቅና በዚህ ብሮውዘር ላይ አይደገፍም"
-        );
-
+        alert("የድምጽ እውቅና በዚህ ብሮውዘር ላይ አይደገፍም");
         return;
     }
 
-
-    const rec =
-        new SpeechRecognition();
-
-
+    const rec = new SpeechRecognition();
     rec.lang = "am-ET";
 
-
     rec.onresult = (e) => {
-
-        document
-            .getElementById("driverVoiceText")
-            .value =
-                e.results[0][0].transcript;
+        document.getElementById("driverVoiceText").value = e.results[0][0].transcript;
     };
 
-
     rec.start();
-
 }
 </script>
 </body>
