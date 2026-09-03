@@ -343,7 +343,60 @@
               </div>
             </div>
             <div>
-            
+            <!-- AI ML Model Prediction Card -->
+<div class="mt-6 p-6 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl space-y-4">
+    <div>
+        <h3 class="font-bold text-slate-900 dark:text-white text-base">የጉዞ አደጋ እና መዘግየት ትንበያ (AI ML Prediction)</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400">የአካባቢ እና የጉዞ ሁኔታዎችን በመቀየር Safe ወይም High Risk መሞከር ይችላሉ።</p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">የነዳጅ ወጪ (Fuel Cost)</label>
+            <input type="number" id="mlFuelCost" value="15000" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white" />
+        </div>
+        <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">የመኪና አቅም (Truck Capacity)</label>
+            <input type="number" id="mlTruckCapacity" value="40" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white" />
+        </div>
+        <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">የሾፌር ልምድ (Years Exp)</label>
+            <input type="number" id="mlDriverExp" value="5" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white" />
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">የትራፊክ ሁኔታ (Traffic Level)</label>
+            <select id="mlTraffic" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white">
+                <option value="0">ኖርማል (Normal)</option>
+                <option value="1">ከፍተኛ (Heavy)</option>
+                <option value="2">ጃም / ተጨናነቀ (Severe Jam)</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">የአየር ንብረት (Weather)</label>
+            <select id="mlWeather" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white">
+                <option value="0">ጥሩ (Clear)</option>
+                <option value="1">ዝናብ / ጭጋግ (Rain/Fog)</option>
+                <option value="2">ከባድ አውሎ ንፋስ (Storm)</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">የመንገድ ሁኔታ (Route Condition)</label>
+            <select id="mlRoute" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white">
+                <option value="0">ጥሩ (Good)</option>
+                <option value="1">አስቸጋሪ / የተበላሸ (Rough/Damaged)</option>
+            </select>
+        </div>
+    </div>
+
+    <button type="button" onclick="runMLPrediction()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md">
+        ሞዴሉን ሞክረው (Run AI Risk Prediction)
+    </button>
+
+    <div id="mlPredictionResult" class="hidden p-4 rounded-xl text-xs font-semibold border"></div>
+</div>
               <label
                 class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2"
                 >የጭነት መግለጫ (Cargo Description)</label
@@ -1339,6 +1392,55 @@ function calculateFreightRisk(distanceKm, tonnage, routeType = "standard") {
 
         rec.start();
       }
+      async function runMLPrediction() {
+ const distance = parseFloat(document.getElementById("shipperDistance").value) || 300;
+ const weight = parseFloat(document.getElementById("shipperTonnage").value) || 30;
+ const fuel_cost = parseFloat(document.getElementById("mlFuelCost").value) || 15000;
+ const truck_capacity = parseFloat(document.getElementById("mlTruckCapacity").value) || 40;
+ const driver_experience = parseInt(document.getElementById("mlDriverExp").value) || 5;
+ 
+// Default corridor environmental factors
+const traffic_level = 2; 
+ const weather_condition = 0; 
+ const route_condition = 0; 
+
+const payload = {
+ distance,
+
+ weight,
+ fuel_cost,
+truck_capacity,
+ driver_experience,
+ traffic_level,
+ weather_condition,
+ route_condition
+ };
+
+ const resultBox = document.getElementById("mlPredictionResult");
+ resultBox.classList.remove("hidden");
+ resultBox.className = "p-4 rounded-xl text-xs font-semibold border bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300";
+ resultBox.innerText = "ሞዴሉ እየተተነተነ ነው... (Analyzing...)";
+
+  try {
+   const response = await fetch("http://127.0.0.1:8000/predict", {
+             method: "POST",
+            headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+}); 
+ const data = await response.json();
+ 
+  if (data.prediction_code === 1) {
+      resultBox.className = "p-4 rounded-xl text-xs font-semibold border bg-rose-500/10 border-rose-500/30 text-rose-500";
+          resultBox.innerText = `⚠️ ትንበያ: ${data.status} (የእርግጠኛ ደረጃ: ${data.confidence_percentage}%)`;
+         } else {
+         resultBox.className = "p-4 rounded-xl text-xs font-semibold border bg-emerald-500/10 border-emerald-500/30 text-emerald-500";
+ resultBox.innerText = `✅ ትንበያ: ${data.status} (የእርግጠኛ ደረጃ: ${data.confidence_percentage}%)`;
+       }
+     } catch (error) {
+        resultBox.className = "p-4 rounded-xl text-xs font-semibold border bg-amber-500/10 border-amber-500/30 text-amber-500";
+        resultBox.innerText = "የባክኤንድ ሰርቨር ግንኙነት አልተሳካም (Backend Offline fallback active).";
+  }
+}
     </script>
   </body>
 </html>
