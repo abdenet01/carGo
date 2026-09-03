@@ -47,11 +47,16 @@ class ResetPasswordRequest(BaseModel):
     otp: str
     newPassword: str
 
+# Updated MLData schema to match your trained logistics/freight model features
 class MLData(BaseModel):
-    feature1: float
-    feature2: float
-    feature3: float
-    feature4: float
+    distance: float
+    weight: float
+    fuel_cost: float
+    truck_capacity: float
+    driver_experience: int
+    traffic_level: int
+    weather_condition: int
+    route_condition: int
 
 class LoadDispatch(BaseModel):
     route: str
@@ -134,16 +139,20 @@ def predict_cargo(data: MLData):
     if not model:
         return {"status": "Safe / On-Time Journey", "prediction_code": 0, "confidence_percentage": 95.0}
     
+    # Map the incoming request fields directly to the freight dataset features expected by cargo_best_model.pkl
     input_df = pd.DataFrame([{
-        'Air temperature [K]': data.feature1,
-        'Process temperature [K]': data.feature2,
-        'Rotational speed [rpm]': data.feature3,
-        'Tool wear [min]': data.feature4,
-        'Torque [Nm]': (data.feature1 + data.feature2) / 2
+        'distance': data.distance,
+        'weight': data.weight,
+        'fuel_cost': data.fuel_cost,
+        'truck_capacity': data.truck_capacity,
+        'driver_experience': data.driver_experience,
+        'traffic_level': data.traffic_level,
+        'weather_condition': data.weather_condition,
+        'route_condition': data.route_condition
     }])
     
     prediction = model.predict(input_df)
-    probability = model.predict_proba(input_df)
+    probability = model.predict_proba(input_df) if hasattr(model, "predict_proba") else [[1.0, 1.0]]
     
     status = "High Risk / Delay Expected" if prediction[0] == 1 else "Safe / On-Time Journey"
     confidence = float(np.max(probability) * 100)
