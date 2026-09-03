@@ -343,6 +343,7 @@
               </div>
             </div>
             <div>
+            
               <label
                 class="block text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2"
                 >የጭነት መግለጫ (Cargo Description)</label
@@ -926,7 +927,32 @@
           .classList.toggle("hidden", !isLoginMode);
         document.getElementById("authErrorMsg").classList.add("hidden");
       }
+ // DRIVER FORM SUBMISSION
+const driverForm = document.getElementById("driverForm");
 
+if (driverForm) {
+  driverForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    // Get the driver's voice/text message
+    const driverMessage = document.getElementById("driverVoiceText").value.trim();
+
+    if (!driverMessage) {
+      alert("እባክዎ የድምጽ ወይም የጽሑፍ መልእክት ያስገቡ።");
+      return;
+    }
+
+    // Your existing driver submission logic can go here.
+    // For now, show a successful submission message.
+    alert("የመመለሻ ጭነት ማስታወቂያዎ ተልኳል።");
+
+    // Clear the driver form
+    driverForm.reset();
+
+    // GO BACK TO ONBOARDING
+    backToDashboard();
+  });
+}
       function showForgotPassword() {
         document.getElementById("stepAuth").classList.add("hidden");
         document.getElementById("stepForgot").classList.remove("hidden");
@@ -940,6 +966,56 @@
         document.getElementById("stepAuth").classList.remove("hidden");
       }
 
+
+      /* AI FREIGHT RISK PREDICTION MODEL */
+function calculateFreightRisk(distanceKm, tonnage, routeType = "standard") {
+    // Base risk factors for Ethiopian transit corridors
+    let riskScore = 15; // Baseline operational risk percentage
+    
+    // Distance factor (longer distance increases exposure)
+    if (distanceKm > 500) {
+        riskScore += 25;
+    } else if (distanceKm > 250) {
+        riskScore += 15;
+    } else {
+        riskScore += 5;
+    }
+
+    // Tonnage load factor (heavy cargo requires careful handling)
+    if (tonnage > 35) {
+        riskScore += 20;
+    } else if (tonnage > 20) {
+        riskScore += 10;
+    }
+
+    // Weather / Route complexity mock adjustment
+    if (routeType === "rough" || routeType === "mountainous") {
+        riskScore += 20;
+    }
+
+    // Cap risk score at a realistic maximum
+    riskScore = Math.min(riskScore, 95);
+
+    let riskLevel = "ዝቅተኛ (Low Risk)";
+    let badgeColor = "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
+    
+    if (riskScore > 50) {
+        riskLevel = "ከፍተኛ (High Risk)";
+        badgeColor = "text-rose-500 bg-rose-500/10 border-rose-500/20";
+    } else if (riskScore > 30) {
+        riskLevel = "መካከለኛ (Moderate Risk)";
+        badgeColor = "text-amber-500 bg-amber-500/10 border-amber-500/20";
+    }
+
+    return {
+        score: riskScore,
+        level: riskLevel,
+        badgeClass: badgeColor,
+        recommendation: riskScore > 50 
+            ? "የአየር ንብረት ወይም የመንገድ አስቸጋሪ ሁኔታ ስለሚታይ የኢንሹራንስ ሽፋን መጨመር ይመከራል።" 
+            : "የጉዞ ሁኔታው አስተማማኝ ነው። የተለመደው የክትትል ስርዓት በቂ ነው።"
+    };
+}
       /* ============================================================
    BACKEND AUTHENTICATION
    ============================================================ */
@@ -1209,17 +1285,7 @@
             .classList.add("hidden");
           document.getElementById("stepPayment").classList.remove("hidden");
         });
-function backToDashboard() {
-    document.getElementById("stepPayment").classList.add("hidden");
-    document.getElementById("stepShipperDashboard").classList.add("hidden");
-    document.getElementById("stepDriverDashboard").classList.add("hidden");
-    document.getElementById("stepAuth").classList.add("hidden");
-    document.getElementById("stepForgot").classList.add("hidden");
 
-    document.getElementById("stepOnboarding").classList.remove("hidden");
-
-    document.getElementById("navUserRole").innerText = "";
-}
       /* ============================================================
    VOICE RECOGNITION (Shipper & Driver)
    ============================================================ */
@@ -1243,7 +1309,17 @@ function backToDashboard() {
 
         rec.start();
       }
+  function backToDashboard() {
+    document.getElementById("stepPayment").classList.add("hidden");
+    document.getElementById("stepShipperDashboard").classList.add("hidden");
+    document.getElementById("stepDriverDashboard").classList.add("hidden");
+    document.getElementById("stepAuth").classList.add("hidden");
+    document.getElementById("stepForgot").classList.add("hidden");
 
+    document.getElementById("stepOnboarding").classList.remove("hidden");
+
+    document.getElementById("navUserRole").innerText = "";
+}
       function startDriverVoice() {
         const SpeechRecognition =
           window.SpeechRecognition || window.webkitSpeechRecognition;
