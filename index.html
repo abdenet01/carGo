@@ -1209,7 +1209,17 @@
             .classList.add("hidden");
           document.getElementById("stepPayment").classList.remove("hidden");
         });
+function backToDashboard() {
+    document.getElementById("stepPayment").classList.add("hidden");
+    document.getElementById("stepShipperDashboard").classList.add("hidden");
+    document.getElementById("stepDriverDashboard").classList.add("hidden");
+    document.getElementById("stepAuth").classList.add("hidden");
+    document.getElementById("stepForgot").classList.add("hidden");
 
+    document.getElementById("stepOnboarding").classList.remove("hidden");
+
+    document.getElementById("navUserRole").innerText = "";
+}
       /* ============================================================
    VOICE RECOGNITION (Shipper & Driver)
    ============================================================ */
